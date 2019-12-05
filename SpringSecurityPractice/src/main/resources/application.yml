@@ -1,0 +1,32 @@
+server: 
+  servlet:
+    context-path: /
+  error:
+    whitelabel:
+      enabled: false
+  port: 8081
+  
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.enable_lazy_load_no_trans: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+#      ddl-auto: none
+#      ddl-auto: create
+    show-sql: true
+  datasource:
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:jpa;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE  
+logging:
+  level:
+    org.springframework.boot: info
+    
