@@ -71,15 +71,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 				.passwordParameter("password")
 				.defaultSuccessUrl("/success")
 				.permitAll()
-//			.and()
-//			.exceptionHandling()
-//				.accessDeniedHandler(accessDeniedHandler()) 
-//				.authenticationEntryPoint(authenticationEntryPoint("/login/error"))
 			;
 		
 		super.configure(http);
 	}
-	
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {

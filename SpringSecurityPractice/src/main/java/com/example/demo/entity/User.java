@@ -1,10 +1,18 @@
 package com.example.demo.entity;
 
+
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.example.demo.enums.Authority;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,12 +25,9 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class User 
+public class User extends BaseEntity
 {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long seq;
+	private static final long serialVersionUID = 1L;
 	
 	@Column
 	private String email;
@@ -30,5 +35,17 @@ public class User
 	@Column
 	@Setter
 	private String password;
+	
+	@Column
+	private Authority authority;
+	
+	public Collection<? extends GrantedAuthority> getAuthorities()
+	{
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		
+		authorities.add(new SimpleGrantedAuthority(authority.getValue()));
+		
+		return authorities;
+	}
 	
 }

@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 
+import javassist.NotFoundException;
+
+//AuthenticationProvider 구현체에서 인증에 사용할 사용자 인증정보를 DB에서 가져오는 역할을 하는 클래스이다
 @Service
 public class UserService implements UserDetailsService
 {
@@ -27,12 +30,10 @@ public class UserService implements UserDetailsService
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// 내가 쓰는 User를 UserDetails로 바꿔야함
-		User user = userRepository.findByEmail(username);
+//		User user = userRepository.findByEmail(username).orElseGet(null);
+		User user = userRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("Not Found Email"));
 		
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-		
-		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getAuthorities());
 				
 //		UserDetails userDetilas = new UserDetails() {
 //			
