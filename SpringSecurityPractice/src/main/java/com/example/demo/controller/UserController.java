@@ -14,10 +14,8 @@ public class UserController
 	private UserService userService;
 	
 	@GetMapping("/create")
-	public User create(String email, String password)
+	public User create(String username, String password)
 	{
-		User user = User.builder().email(email).password(password).build();
-		
-		return userService.save(user);
+		return userService.save(User.builder().username(username).password(password).build());
 	}
 }

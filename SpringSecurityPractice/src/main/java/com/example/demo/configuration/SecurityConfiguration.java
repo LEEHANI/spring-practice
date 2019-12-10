@@ -1,20 +1,31 @@
 package com.example.demo.configuration;
 
+import java.util.Arrays;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
-import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 {
+	@Resource(name = "userService")
+	private UserDetailsService userDetailsService;
+	
 	/**
 	 * 스프링 시큐리티 룰을 무시하게 하는 url 규칙
 	 */
@@ -57,10 +68,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 			.httpBasic()
 			.and()
 			.authorizeRequests() 
-//				.antMatchers("/users/{userId}").access("@authenticationCheckHandler.checkUserId(authentication,#userId)")
-//				.antMatchers("/admin/db/**").access("hasRole('ADMIN_MASTER') or hasRole('ADMIN') and hasRole('DBA')")
-//				.antMatchers("/register/**").hasRole("ANONYMOUS")
-//				.antMatchers("/").hasRole("USER")
 				.antMatchers("/user").hasRole("USER")
 				.antMatchers("/admin").hasRole("ADMIN")
 				.antMatchers("/test", "/create", "/success").permitAll()
@@ -89,20 +96,32 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 	 * auth.userDetailsService(userDetailsService)
 	 * userDetailsService는 AuthenticationProvider 구현체에서 인증에 사용할 사용자 인증정보를 DB에서 가져오는 역할을 하는 클래스.  
 	 */
-//	@Override
-//	protected void configure(AuthenticationManagerBuilder auth) throws Exception 
-//	{
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception 
+	{
 //		auth
 //			.inMemoryAuthentication()
 //				.withUser("user").password(passwordEncoder().encode("pass")).roles("USER")
 //			.and()
 //				.withUser("admin").password(passwordEncoder().encode("admin")).roles("ADMIN")
 //			;
-////		auth.authenticationProvider(authenticationProvider)
-////		auth.userDetailsService(userDetailsService)
-//		
-//	}
+		
+		auth
+			.userDetailsService(userDetailsService)
+			.passwordEncoder(passwordEncoder());
+	}
 	
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource()
+	{
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("*"));
+		configuration.setAllowedMethods(Arrays.asList("*"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 	
 //	@Bean
 //	public AccessDeniedHandler accessDeniedHandler()

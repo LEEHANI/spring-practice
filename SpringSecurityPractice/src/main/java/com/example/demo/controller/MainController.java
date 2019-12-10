@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,7 +10,10 @@ public class MainController
 	@GetMapping(value = "/")
 	public String init()
 	{
-		return "hell word";
+//		System.out.println("principal " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+//		System.out.println("principal " + SecurityContextHolder.getContext().getAuthentication().getName());
+//		System.out.println("principal " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+		return "hello world";
 	}
 	
 	@GetMapping(value = "/user")

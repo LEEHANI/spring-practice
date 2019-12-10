@@ -1,11 +1,8 @@
 package com.example.demo.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,9 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.User;
+import com.example.demo.enums.Authority;
 import com.example.demo.repository.UserRepository;
-
-import javassist.NotFoundException;
 
 //AuthenticationProvider 구현체에서 인증에 사용할 사용자 인증정보를 DB에서 가져오는 역할을 하는 클래스이다
 @Service
@@ -30,10 +26,9 @@ public class UserService implements UserDetailsService
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// 내가 쓰는 User를 UserDetails로 바꿔야함
-//		User user = userRepository.findByEmail(username).orElseGet(null);
-		User user = userRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("Not Found Email"));
+		User user = userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("Not Found Email"));
 		
-		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getAuthorities());
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
 				
 //		UserDetails userDetilas = new UserDetails() {
 //			
@@ -86,5 +81,17 @@ public class UserService implements UserDetailsService
 	{
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return userRepository.save(user);
+	}
+	
+	@PostConstruct
+	public void init()
+	{
+		User may = userRepository.findByUsername("may").orElse(null);
+		
+		if(may == null)
+		{
+			User user = this.save(User.builder().username("may").password("pass").authority(Authority.USER).build());
+			System.out.println(user);
+		}
 	}
 }

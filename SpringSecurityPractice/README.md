@@ -7,10 +7,14 @@ spring-security5 + jpa를 이용해 간단한 로그인 구현! security form �
     + ```인증```은 애플리케이션의 작업을 수행할 수 잇는 주체(사용자) 인지 아닌지 확인
     + ```권한```은 인증된 주체가 애플리케이션의동작을 수행할 수 있도록 허락되있는지   
       * 웹 요청 권한, 메소드 호출 및 도메인 인스턴스에 대한 접근 권한
-    + 많은 ```Filter```들은 DispatcherServlet 을 호출하기 전에 거쳐간다 
-    + 접근 주체(Principal) 보호된 리소스에 접근하는 대상
-    + 인증(Authentication)
-    + 인가(Authorize) 해당 리소스에 대해 접근 가능한 권한을 가지고 있는지 확인하는 과정(After Autentication, 인증 이후)
+    + 많은 ```Filter```들은 DispatcherServlet 을 호출하기 전에 거쳐간다
+  - 주요 용어    
+    + 접근 주체(`Principal`) -> Authentication
+      + 보호된 리소스에 접근하는 대상
+    + 인증(`Authentication`) -> Authentication Manager
+      + 사용자가 누군지 확인 
+    + 인가(`Authorize`) -> Security Interceptor 
+      + 해당 리소스에 대해 접근 가능한 권한을 가지고 있는지 확인하는 과정(After Autentication, 인증 이후)
     
   - ```@EnableGlobalMethodSecurity(securedEnabled = true)``` 어노테이션을 사용하면 서비스 단에서도 시큐리티 사용 가능
     + ```WebSecurityConfiguration.java```, ```UserService.java``` 참고 
@@ -22,5 +26,6 @@ spring-security5 + jpa를 이용해 간단한 로그인 구현! security form �
 
 
         
-참고
-https://coding-start.tistory.com/153        
+참고  
+- https://coding-start.tistory.com/153
+- https://www.slideshare.net/madvirus/ss-36809454        
