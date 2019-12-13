@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.User;
+import com.example.demo.enums.Authority;
 import com.example.demo.repository.UserRepository;
 
 @Service
@@ -35,6 +36,7 @@ public class UserService  implements UserDetailsService
 	public User save(User user)
 	{
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.bind(Authority.USER);
 		return userRepository.save(user);
 	}
 	
@@ -50,8 +52,7 @@ public class UserService  implements UserDetailsService
 		
 		if(may == null)
 		{
-			User uuser = this.save(User.builder().username("may").password("pass").build());
-			System.out.println(uuser);
+			User user = this.save(User.builder().username("may").password("pass").build());
 		}
 	}
 
@@ -61,7 +62,7 @@ public class UserService  implements UserDetailsService
 		User user = userRepository.findByUsername(username);
 		
 		
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthorities());
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
 	}
 	
 	public Collection<? extends GrantedAuthority> getAuthorities()

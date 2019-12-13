@@ -14,8 +14,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) throws Exception 
 	{
-		resources.resourceId("resource_id")
-		.stateless(false) // token으로만 인증 확인할건지?
+		resources
+			.resourceId("resource_id")
+			.stateless(false) // token으로만 인증 확인할건지?
 		;
 	}
 	

@@ -3,3 +3,4 @@ server:
 logging:
   level:
     org.springframework.boot: debug  
+    

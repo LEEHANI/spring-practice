@@ -14,15 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter 
 {
 	@Resource(name = "userService")
@@ -39,12 +36,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 	public PasswordEncoder encoder()
 	{
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-	}
-	
-	@Bean
-	public TokenStore tokenStore()
-	{
-		return new InMemoryTokenStore();
 	}
 	
 	@Override
