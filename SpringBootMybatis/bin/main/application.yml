@@ -1,0 +1,13 @@
+mybatis:
+  type-aliases-package: com.example.demo.extity
+  mapper-locations:
+  - classpath:/mapper/*.xml
+  
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/springdb?useUnicode=yes&characterEncoding=UTF-8  
+    username: root
+    password: 1
+    driver-class-name: com.mysql.jdbc.Driver
