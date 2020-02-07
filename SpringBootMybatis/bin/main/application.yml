@@ -2,7 +2,6 @@ mybatis:
   type-aliases-package: com.example.demo.extity
   mapper-locations:
   - classpath:/mapper/*.xml
-  
 server:
   port: 8080
 spring:
@@ -11,3 +10,6 @@ spring:
     username: root
     password: 1
     driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none

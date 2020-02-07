@@ -11,5 +11,4 @@ import com.example.demo.entity.Member;
 public interface MemberMapper 
 {
 	public void insertMember(Member member);
-	public List<Member> getAll();
 }

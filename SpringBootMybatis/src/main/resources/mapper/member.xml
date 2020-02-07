@@ -4,11 +4,5 @@
 <mapper namespace="com.example.demo.repository.MemberMapper">
 	<insert id="insertMember">
 		INSERT INTO member(id, password) VALUES(#{id}, #{password})	
-	</insert>
-	
-
-	<select id="getAll" resultType="member">
-		SELECT * FROM member
-	</select>
-	
+	</insert>	
 </mapper>
