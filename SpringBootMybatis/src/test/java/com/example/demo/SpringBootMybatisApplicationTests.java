@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.demo.entity.Member;
-import com.example.demo.repository.MemberMapper;
+import com.example.demo.mapper.MemberMapper;
 
 @SpringBootTest
 class SpringBootMybatisApplicationTests {
