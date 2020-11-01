@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b9eb337b-1203-4203-b04a-d5e4bdc8fd71" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="JUnit5 Test Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1jaE2uMG8pvYkfF5MQ9uttUYmg0" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit5" />
+    <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.example.demo.service" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Gradle.UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_메서드2_호출_시_테스트">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_메서드2_호출_시_테스트" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.example.demo.service.UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_메서드2_호출_시_테스트&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_Private_메서드2_호출_시_테스트" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.example.demo.service.UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_Private_메서드2_호출_시_테스트&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="UserServiceTest.동일클래스_메서드에서_메서드호출_시_트랜잭션_테스트" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.example.demo.service.UserServiceTest.동일클래스_메서드에서_메서드호출_시_트랜잭션_테스트&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="UserServiceTest.동일클래스_트랜잭션_걸린_메서드에서_메서드호출_시_테스트" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.example.demo.service.UserServiceTest.동일클래스_트랜잭션_걸린_메서드에서_메서드호출_시_테스트&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="SpringBootTransactionApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="demo.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.demo.SpringBootTransactionApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_메서드2_호출_시_테스트" />
+        <item itemvalue="Gradle.UserServiceTest.동일클래스_트랜잭션_걸린_메서드1에서_Private_메서드2_호출_시_테스트" />
+        <item itemvalue="Gradle.UserServiceTest.동일클래스_트랜잭션_걸린_메서드에서_메서드호출_시_테스트" />
+        <item itemvalue="Gradle.UserServiceTest.동일클래스_메서드에서_메서드호출_시_트랜잭션_테스트" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b9eb337b-1203-4203-b04a-d5e4bdc8fd71" name="Default Changelist" comment="" />
+      <created>1604033599443</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1604033599443</updated>
+      <workItem from="1604033601375" duration="86000" />
+      <workItem from="1604033736138" duration="3290000" />
+      <workItem from="1604040949140" duration="8193000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="709" y="251" key="#com.intellij.ide.util.MemberChooser" timestamp="1604039913812">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state x="709" y="251" key="#com.intellij.ide.util.MemberChooser/0.23.1792.1050@0.23.1792.1050" timestamp="1604039913812" />
+    <state x="287" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1604223654713">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state x="287" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604223654713" />
+    <state x="287" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1792.1050@0.23.1792.1050" timestamp="1604043410324" />
+    <state width="1750" height="223" key="GridCell.Tab.0.bottom" timestamp="1604222597048">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.0.bottom/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222597048" />
+    <state width="1750" height="395" key="GridCell.Tab.0.bottom/0.23.1792.1050@0.23.1792.1050" timestamp="1604045892691" />
+    <state width="1750" height="223" key="GridCell.Tab.0.center" timestamp="1604222597047">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.0.center/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222597047" />
+    <state width="1750" height="395" key="GridCell.Tab.0.center/0.23.1792.1050@0.23.1792.1050" timestamp="1604045892691" />
+    <state width="1750" height="223" key="GridCell.Tab.0.left" timestamp="1604222597046">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.0.left/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222597046" />
+    <state width="1750" height="395" key="GridCell.Tab.0.left/0.23.1792.1050@0.23.1792.1050" timestamp="1604045892690" />
+    <state width="1750" height="223" key="GridCell.Tab.0.right" timestamp="1604222597047">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.0.right/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222597047" />
+    <state width="1750" height="395" key="GridCell.Tab.0.right/0.23.1792.1050@0.23.1792.1050" timestamp="1604045892691" />
+    <state width="1750" height="223" key="GridCell.Tab.1.bottom" timestamp="1604222595791">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.1.bottom/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222595791" />
+    <state width="1750" height="395" key="GridCell.Tab.1.bottom/0.23.1792.1050@0.23.1792.1050" timestamp="1604045895295" />
+    <state width="1750" height="223" key="GridCell.Tab.1.center" timestamp="1604222595791">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.1.center/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222595791" />
+    <state width="1750" height="395" key="GridCell.Tab.1.center/0.23.1792.1050@0.23.1792.1050" timestamp="1604045895294" />
+    <state width="1750" height="223" key="GridCell.Tab.1.left" timestamp="1604222595790">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.1.left/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222595790" />
+    <state width="1750" height="395" key="GridCell.Tab.1.left/0.23.1792.1050@0.23.1792.1050" timestamp="1604045895293" />
+    <state width="1750" height="223" key="GridCell.Tab.1.right" timestamp="1604222595791">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state width="1750" height="223" key="GridCell.Tab.1.right/0.-1057.1920.1057/0.23.1792.1050@0.23.1792.1050" timestamp="1604222595791" />
+    <state width="1750" height="395" key="GridCell.Tab.1.right/0.23.1792.1050@0.23.1792.1050" timestamp="1604045895294" />
+    <state x="655" y="345" key="com.intellij.testIntegration.createTest.CreateTestDialog" timestamp="1604034875274">
+      <screen x="0" y="23" width="1792" height="1050" />
+    </state>
+    <state x="655" y="345" key="com.intellij.testIntegration.createTest.CreateTestDialog/0.23.1792.1050@0.23.1792.1050" timestamp="1604034875274" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/example/demo/service/TransactionSameService.java</url>
+          <line>38</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
