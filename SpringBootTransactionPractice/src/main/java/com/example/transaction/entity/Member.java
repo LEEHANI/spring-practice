@@ -21,4 +21,8 @@ public class Member {
     public void changeName(String newName) {
         this.name = newName;
     }
+
+    public Member(String userId) {
+        this.userId = userId;
+    }
 }

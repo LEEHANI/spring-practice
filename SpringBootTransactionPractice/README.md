@@ -47,3 +47,10 @@ public void noTransaction(List<Member> members) {
     members.forEach(u->u.changeName(u.getName() + " 변경"));
 }
 ```
+
+
+
+## Transaction Exception 상황에서의 동작
+- 참여 중인 트랜잭션이 실패하면 기본 정책이 전역롤백이다. rollback-only
+  + A → B 메소드 호출되고 A 메소드에서 트랜잭션 시작되고 B 도 @Transactional(propagation=REQUIRED)일 경우, B에서 예외가 발생하면 A에서 비록 예외를 잡아서 먹어버리더라도 트랜잭션은 롤백 된다
+- 트랜잭션에서 Propagation.REQUIRES_NEW로 새로운 트랜잭션을 만들면, 커넥션이 또 생성된다.   
