@@ -9,3 +9,5 @@ spring:
     url: jdbc:h2:mem:testdb;
     username: sa
     password:
+#  aop:
+#    proxy-target-class: false

@@ -1,4 +1,4 @@
-package com.example.transaction.service;
+package com.example.transaction.service.seperate;
 
 import com.example.transaction.entity.Member;
 import com.example.transaction.repository.MemberRepository;

@@ -1,5 +1,6 @@
 package com.example.transaction.service;
 
+import com.example.transaction.service.same.TransactionSameService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
