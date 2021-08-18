@@ -1,3 +1,6 @@
+- [빈 스코프](./src/test/java/com/example/demo/scope/README.md) 
+
+
 # Spring
 - 스프링이란 loC와 AOP를 지원하는 경량의 컨테이너 프레임워크이다
 
