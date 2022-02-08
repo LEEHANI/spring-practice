@@ -1,3 +1,4 @@
+- [의존관계 자동 주입 방법]
 - [빈 스코프](./src/test/java/com/example/demo/scope/README.md) 
 
 

@@ -70,36 +70,37 @@
   }
   ```
 - 이를 해결하려면 사용할 때마다 새로 생성할 수 있도록 수정해야한다.
-- 방법 
-  + ObjectProvider 
-    - ```
-      @Scope(value = "singleton")
-      static class SingletonScopeProvider {
-          private final ObjectProvider<PrototypeScope> prototypeProvider;
-  
-          @Autowired
-          public SingletonScopeProvider(ObjectProvider<PrototypeScope> prototypeProvider) {
-              this.prototypeProvider = prototypeProvider;
-          }
-  
-          public PrototypeScope getPrototype() {
-              return prototypeProvider.getObject();
-          }
-  
-          @PostConstruct
-          public void init() {
-              System.out.println("SingletonScopeProvider.init");
-          }
+## 해결 방법 
+### ObjectProvider 
+- ```
+  @Scope(value = "singleton")
+  static class SingletonScopeProvider {
+      private final ObjectProvider<PrototypeScope> prototypeProvider;
+
+      @Autowired
+      public SingletonScopeProvider(ObjectProvider<PrototypeScope> prototypeProvider) {
+          this.prototypeProvider = prototypeProvider;
       }
-      ```
-  + proxyMode = ScopedProxyMode.TARGET_CLASS
-    - ```
-      @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
-      static class PrototypeScopeProxy {
-  
-          @PostConstruct
-          public void init() {
-              System.out.println("PrototypeScopeProxy.init");
-          }
+
+      public PrototypeScope getPrototype() {
+          return prototypeProvider.getObject();
       }
-      ```
+
+      @PostConstruct
+      public void init() {
+          System.out.println("SingletonScopeProvider.init");
+      }
+  }
+  ```
+
+### proxyMode = ScopedProxyMode.TARGET_CLASS
+- ```
+  @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+  static class PrototypeScopeProxy {
+
+      @PostConstruct
+      public void init() {
+          System.out.println("PrototypeScopeProxy.init");
+      }
+  }
+  ```
