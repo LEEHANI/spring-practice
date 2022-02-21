@@ -1,6 +1,6 @@
 # 스프링 배치
 - 일괄처리 애플리케이션 
-- 인프런 스프링 배치(정수원님) - Spring Boot 기반으로 개발하는 Spring Batch 강의 듣고 정리 
+- 인프런 스프링 배치(정수원님) - `Spring Boot 기반으로 개발하는 Spring Batch` 강의 듣고 정리 
 
 
 ## 핵심 패턴
@@ -30,4 +30,21 @@
 ## hello batch 
 - Job이 구동되면 Step을 실행하고 Step이 구동되면 Taskelt(작업내용)을 실행하도록 설정함 
 
+## 메타 테이블
+- 스프링 배치 실행 및 관리를 위해 배치 실행 사항들을 DB로 저장할 수 있음  
+- 스키마 위치 `/org/springframework/batch/core/schema-*.sql`
+- 수동 생성 - schema-mysql.sql 쿼리 복사해서 실행 
+- 자동 생성 spring.batch.jdbc.initialize-schema 설정
+  + `ALWAYS`: 스크립트 항상 실행. RDBMS -> 내장 DB 순서로 실행
+  + `EMBEDDED`: 내장 DB일 때 스키마 자동 생성 
+  + `NEVER`: 스크립트 실행 안함. 내장 DB일 경우 스크립트 생성이 안되기 때문에 오류 발생
 
+### Job 관련 테이블 
+- BATCH_JOB_INSTANCE
+- BATCH_JOB_EXECUTION
+- BATCH_JOB_EXECUTION_PARAMS
+- BATCH_JOB_EXECUTION_CONTEXT
+
+### Step 관련 테이블 
+- BATCH_STEP_EXECUTION
+- BATCH_STEP_EXECUTION_CONTEXT
