@@ -13,13 +13,13 @@
 - 의존관계 step을 순차적으로 처리
 
 ## 스프링 배치 초기화 설정 클래스 
-- BatchAutoConfiguration 
+- `BatchAutoConfiguration` 
   + 스프링 배치가 초기화 될 때 자동으로 실행되는 설정 클래스 
   + Job을 수행하는 JobLauncherApplicationRunner 빈 생성 
-- SimpleBatchConfiguration
+- `SimpleBatchConfiguration`
   + JobBuilderFactory와 StepBuilderFactory 생성
   + 스프링 배치의 주요 구성 요소 생성 - `프록시 객체`로 생성됨 
-- BatchConfigurerConfiguration 
+- `BatchConfigurerConfiguration` 
   + BasicBatchConfigurer
     - SimpleBatchConfiguration에서 생성한 프록시 객체의 실제 대상 객체를 생성하는 설정 클래스  
   + JpaBatchConfigurer
@@ -99,7 +99,7 @@
 - `Job`이 구동되면 `Step`을 실행하고 Step이 구동되면 `Taskelt`(작업내용)을 실행하도록 설정함
 
 ## 메타 테이블
-![MetaTable](/images/MetaTable.png)
+![MetaTable](./images/MetaTable.png)
 - 스프링 배치 실행 및 관리를 위해 배치 실행 사항들을 DB에 저장할 수 있음  
 - 스키마 위치 `/org/springframework/batch/core/schema-*.sql`
 - 기본으로 `h2같은 embedded db를 사용하면 테이블이 자동으로 생성` 된다.
@@ -111,8 +111,8 @@
 
 ## MySQL로 메타 테이블 관리 
 - 디비 연결 
-![mysql-connection](/images/mysql-connection.png)
-![mysql-mata-table](/images/mysql-mata-table.png)
+![mysql-connection](./images/mysql-connection.png)
+![mysql-mata-table](./images/mysql-mata-table.png)
 - application.yml 설정 
 ```
 spring:
@@ -147,8 +147,6 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
-    job:
-      enabled: false  
 ```
 
 ### Job 관련 테이블 
@@ -174,7 +172,7 @@ spring:
   + 특정한 조건과 흐름에 따라 Step을 구성하여 실행시키는 Job 
   + Flow 객체를 실행시켜서 작업을 진행 
   
-## JobInstance
+# JobInstance
 ![JobInstance](/images/JobInstance.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - `JobInstance`는 `Job이 실행될 때 생성`되고, `Job의 논리적 실행 단위`로서 작업 현황을 디비에 저장하는 메타데이터
 - `Job`의 `설정과 구성은 동일해도 실행되는 시점에 처리하는 내용(Job, JobParameter)은 다르기 때문에 Job의 실행을 구분`해야한다. 
@@ -182,11 +180,79 @@ spring:
 - 이전과 동일한 정보인 경우 기존 JobInstance 정보를 얻는다. (동일한 내용으로는 수행 불가)  
 - 즉, 똑같은 JobInstance는 하나밖에 없다. 
 
+## BATCH_JOB_INSTANCE
+- 간단한 job을 만들어서 구동시켜보자.  
+- ```java
+  @Configuration
+  @RequiredArgsConstructor
+  public class JobConfiguration {
+      private final JobBuilderFactory jobBuilderFactory;
+      private final StepBuilderFactory stepBuilderFactory;
+  
+      @Bean
+      public Job job() {
+          return jobBuilderFactory.get("job")
+                  .start(step1())
+                  .build();
+      }
+  
+      @Bean
+      public Step step1() {
+          return stepBuilderFactory.get("step1")
+                  .tasklet(new Tasklet() {
+                      @Override
+                      public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+                          System.out.println("step1 was executed");
+                          return RepeatStatus.FINISHED;
+                      }
+                  })
+                  .build();
+      }
+  }
+  ```
+- BATCH_JOB_INSTANCE를 조회해보면 구동시킨 job 정보가 들어있다. 
+- ![job-instance-table](./images/job-instance-table.png)
+- `JOB_NAME`은 `jobBuilderFactory.get("job")`이고 `JOB_KEY`는 `jobParameters에 해시`를 적용한 값이다. 
+- job을 실행할 때 외부에서 파라미터 값을 받아서 jobParamter값으로 사용할 수 있다.
+- 위에 설명한 것처럼, 동일한 job에 대해서는 BATCH_JOB_INSTANCE에 기록되지 않는다. 
+- 배치를 다시 구동시켜보면, 데이터가 그대로인걸 볼 수 있다.
+- JobLauncher로 job에 파라미터를 전달하면 기존에 없는 값이기에 JobInstance가 새로 생성된다. 
+```
+@Component
+public class JobRunner implements ApplicationRunner {
 
+    @Autowired
+    private JobLauncher jobLauncher;
 
+    @Autowired
+    private Job job;
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
 
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("param", "test")
+                .toJobParameters();
 
+        jobLauncher.run(job, jobParameters);
+    }
+}
+```
+- ![JobInstance-with-param](./images/JobInstance-with-param.png)
+- ![JobInstance-execution-params](./images/JobInstance-execution-params.png)
+
+# JobParameter 
+- Job을 실행할 때 사용되는 파라미터
+- JobInstance를 구분하기 위한 용도 
+- JobParamters와 JobInstance는 1:1 관계
+
+## 생성 및 바인딩 
+- 어플리케이션 실행 시 주입
+  + java -jar LogBatch.jar datetime=20220202
+- 코드로 생성
+  + JobParameterBuilder, DefaultJobParametersConverter
+- SpEL 이용 
+  + @Value("#{jobParameters[datetime]}"), @JobScope, @StepScope 선언 필수 
 
 
 
