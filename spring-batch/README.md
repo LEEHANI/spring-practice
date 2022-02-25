@@ -173,7 +173,7 @@ spring:
   + Flow 객체를 실행시켜서 작업을 진행 
   
 # JobInstance
-![JobInstance](/images/JobInstance.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+![JobInstance](./images/JobInstance.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - `JobInstance`는 `Job이 실행될 때 생성`되고, `Job의 논리적 실행 단위`로서 작업 현황을 디비에 저장하는 메타데이터
 - `Job`의 `설정과 구성은 동일해도 실행되는 시점에 처리하는 내용(Job, JobParameter)은 다르기 때문에 Job의 실행을 구분`해야한다. 
 - 최초 실행하면 Job(jobName), JobParameter(jobKey) 정보가 JobInstance로 생성되어 JOB_INSTANCE 테이블에 저장된다.
@@ -214,9 +214,9 @@ spring:
 - ![job-instance-table](./images/job-instance-table.png)
 - `JOB_NAME`은 `jobBuilderFactory.get("job")`이고 `JOB_KEY`는 `jobParameters에 해시`를 적용한 값이다. 
 - job을 실행할 때 외부에서 파라미터 값을 받아서 jobParamter값으로 사용할 수 있다.
-- 위에 설명한 것처럼, 동일한 job에 대해서는 BATCH_JOB_INSTANCE에 기록되지 않는다. 
+- 위에 설명한 것처럼, `동일한 job에 대해서는 BATCH_JOB_INSTANCE에 기록되지 않는다.` 
 - 배치를 다시 구동시켜보면, 데이터가 그대로인걸 볼 수 있다.
-- JobLauncher로 job에 파라미터를 전달하면 기존에 없는 값이기에 JobInstance가 새로 생성된다. 
+- 파라미터를 넘겨주기 위해서 `JobLauncher`로 job을 구동시켜보면 job, jobParameter 값이 기존에 없기에 JobInstance가 새로 생성된다. 
 ```
 @Component
 public class JobRunner implements ApplicationRunner {
@@ -245,21 +245,98 @@ public class JobRunner implements ApplicationRunner {
 - Job을 실행할 때 사용되는 파라미터
 - JobInstance를 구분하기 위한 용도 
 - JobParamters와 JobInstance는 1:1 관계
+- 파라미터 타입은 String, double, date, long 이다.  
 
 ## 생성 및 바인딩 
 - 어플리케이션 실행 시 주입
-  + java -jar LogBatch.jar datetime=20220202
+  + `java -jar spring-batch-0.0.1-SNAPSHOT.jar stringParam=test2 longParam(long)=2L`
 - 코드로 생성
   + JobParameterBuilder, DefaultJobParametersConverter
+  + ```
+    JobParameters jobParameters = new JobParametersBuilder()
+                .addString("stringParam", "test")
+                .addLong("longParam", 1L)
+                .toJobParameters(); 
+    ```
 - SpEL 이용 
   + @Value("#{jobParameters[datetime]}"), @JobScope, @StepScope 선언 필수 
 
+# JobExecution
+- JobInstance를 한번 시도 하는 것을 의미하는 객체. Job 실행 중에 발생한 정보들을 저장하는 객체 
+- JobInstance 와 JobExecution 는 1:M 의 관계로서 JobInstance 에 대한 성공/실패의 내역을 가지고 있음
 
+## BATCH_JOB_EXECUTION
+- 최초 Job을 만들어서 파라미터를 name=user1로 전달하여 돌려보면 다음과 같다.
+- ```java
+  @Configuration
+  @RequiredArgsConstructor
+  public class JobExecutionBatch {
+    private final JobBuilderFactory jobBuilderFactory;
+    private final StepBuilderFactory stepBuilderFactory;
 
+    @Bean
+    public Job job() {
+        return jobBuilderFactory.get("job")
+                .start(step1())
+                .build();
+    }
 
+    @Bean
+    public Step step1() {
+        return stepBuilderFactory.get("step1")
+                .tasklet((contribution, chunkContext) -> {
+                        System.out.println("job execution step1 was executed");
+                        return RepeatStatus.FINISHED;
+                })
+                .build();
+    }
+  }
+  ```
+- ![first-job-instance](./images/execution/first-job-instance.png)
+- ![first-job-execution](./images/execution/first-job-execution.png)
+- status=COMPLETED로 되어있다.
+- 여기서 재구동하면 동일한 job instance가 존재하니, 파라미터를 바꾸라는 에러가 뜬다.  
+- ![first-error](./images/execution/first-error.png)
+- 이번엔 step2()에 에러를 발생시켜 job에 next(step2())를 추가해보자. 파라미터를 name=user2로 전달.
+- ```
+    @Bean
+    public Job job() {
+        return jobBuilderFactory.get("job")
+                .start(step1())
+                .next(step2())
+                .build();
+    }
 
+    @Bean
+    public Step step1() {
+        return stepBuilderFactory.get("step1")
+                .tasklet((contribution, chunkContext) -> {
+                        System.out.println("job execution step1 was executed");
+                        return RepeatStatus.FINISHED;
+                })
+                .build();
+    }
 
-
+    @Bean
+    public Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet((contribution, chunkContext) -> {
+                    System.out.println("job execution step2 was executed");
+                    throw new RuntimeException("step2 has failed");
+                })
+                .build();
+    }  
+  ```
+- ![second-job-execution](./images/execution/second-job-execution.png)
+- 실행시켜보면 status=FAILED로 저장되어있다. 
+- 이때 다시 실행시켜보자. 
+- ![third-job-execution](./images/execution/third-job-execution.png)
+- COMPLETED로 끝난게 아니라 FAILED였기 때문에 데이터가 추가된걸 볼 수 있다. 
+- step2()에 exception 부분을 return RepeatStatus.FINISHED로 바꾸고 실행시켜보자. 
+- ![fourth-job-execution](./images/execution/fourth-job-execution.png)
+- 이번엔 FAILED대신에 COMPLETED로 바뀌어있다. 
+- COMPLETED일때 다시 실행시켜보면 `A job instance already exists and is complete for parameters={name=user2}.  If you want to run this job again, change the parameters.` 에러가 발생한다.   
+- 즉, 동일한 job, jobParameters에 대해서 성공하면 다음번에 실행이 안되고, 실패하면 job_execution에 계속 추가되어 계속 시도한다.   
 
 
 

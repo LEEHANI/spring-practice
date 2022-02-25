@@ -1,4 +1,4 @@
-package com.example.springbatch;
+package com.example.springbatch.job.instance;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -9,7 +9,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class JobInstanceBatch {
     private final JobBuilderFactory jobBuilderFactory;

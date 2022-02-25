@@ -1,4 +1,4 @@
-package com.example.springbatch;
+package com.example.springbatch.job.params;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -9,7 +9,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class JobRunner implements ApplicationRunner {
 
     @Autowired
@@ -22,7 +22,8 @@ public class JobRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("param", "test")
+                .addString("stringParam", "test")
+                .addLong("longParam", 1L)
                 .toJobParameters();
 
         jobLauncher.run(job, jobParameters);
