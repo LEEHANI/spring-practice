@@ -262,11 +262,11 @@ public class JobRunner implements ApplicationRunner {
   + @Value("#{jobParameters[datetime]}"), @JobScope, @StepScope 선언 필수 
 
 # JobExecution
-- JobInstance를 한번 시도 하는 것을 의미하는 객체. Job 실행 중에 발생한 정보들을 저장하는 객체 
+- `JobInstance`를 `한 번 시도` 하는 것을 의미하는 객체. Job 실행 중에 발생한 정보들을 저장하는 객체 
 - JobInstance 와 JobExecution 는 1:M 의 관계로서 JobInstance 에 대한 성공/실패의 내역을 가지고 있음
 
 ## BATCH_JOB_EXECUTION
-- 최초 Job을 만들어서 파라미터를 name=user1로 전달하여 돌려보면 다음과 같다.
+- 최초 `Job`을 만들어서 파라미터를 `name=user1`로 전달하여 돌려보면 다음과 같다.
 - ```java
   @Configuration
   @RequiredArgsConstructor
@@ -294,10 +294,10 @@ public class JobRunner implements ApplicationRunner {
   ```
 - ![first-job-instance](./images/execution/first-job-instance.png)
 - ![first-job-execution](./images/execution/first-job-execution.png)
-- status=COMPLETED로 되어있다.
+- status=`COMPLETED`로 되어있다.
 - 여기서 재구동하면 동일한 job instance가 존재하니, 파라미터를 바꾸라는 에러가 뜬다.  
 - ![first-error](./images/execution/first-error.png)
-- 이번엔 step2()에 에러를 발생시켜 job에 next(step2())를 추가해보자. 파라미터를 name=user2로 전달.
+- 이번엔 스텝에 에러를 추가해보자. `next(step2())` 파라미터를 name=user2로 전달.
 - ```
     @Bean
     public Job job() {
@@ -328,18 +328,31 @@ public class JobRunner implements ApplicationRunner {
     }  
   ```
 - ![second-job-execution](./images/execution/second-job-execution.png)
-- 실행시켜보면 status=FAILED로 저장되어있다. 
+- 실행시켜보면 status=`FAILED`로 저장되어있다. 
 - 이때 다시 실행시켜보자. 
 - ![third-job-execution](./images/execution/third-job-execution.png)
-- COMPLETED로 끝난게 아니라 FAILED였기 때문에 데이터가 추가된걸 볼 수 있다. 
+- COMPLETED이 아닌 FAILED로 끝났기 때문에 동일한 job과 파라미터로 시도해도 데이터가 추가된다. 
 - step2()에 exception 부분을 return RepeatStatus.FINISHED로 바꾸고 실행시켜보자. 
 - ![fourth-job-execution](./images/execution/fourth-job-execution.png)
-- 이번엔 FAILED대신에 COMPLETED로 바뀌어있다. 
+- 이번엔 `FAILED` 대신에 `COMPLETED`로 바뀌어있다. 
 - COMPLETED일때 다시 실행시켜보면 `A job instance already exists and is complete for parameters={name=user2}.  If you want to run this job again, change the parameters.` 에러가 발생한다.   
-- 즉, 동일한 job, jobParameters에 대해서 성공하면 다음번에 실행이 안되고, 실패하면 job_execution에 계속 추가되어 계속 시도한다.   
+- `즉, 동일한 job, jobParameters에 대해서 성공하면 다음번에 실행이 안되고, 실패하면 job_execution에 계속 추가되어 계속 시도한다.` 
 
 
+# Step
+![step_architecture](./images/step_architecture.png)
+- Job을 구성하는 독립적인 하나의 단계
+- 실제 비즈니스 로직이 들어감 
 
+## 기본 구현체 
+- TaskletStep
+  + 기본 클래스. Tasket 타입의 구현체들을 제어 
+- PartitionStep
+  + 멀티스레드 방식으로 Step을 여러개 분리해서 실행 
+- JobStep
+  + Step 내에서 Job을 실행 
+- FlowStep
+  + + Step 내에서 flow를 실행 
 
 
 
