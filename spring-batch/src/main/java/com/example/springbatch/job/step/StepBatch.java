@@ -39,6 +39,7 @@ public class StepBatch {
         return stepBuilderFactory.get("step2")
                 .tasklet((contribution, chunkContext) -> {
                     System.out.println("step2 was executed");
+//                    throw new Exception("error step2");
                     return RepeatStatus.FINISHED;
                 })
                 .build();

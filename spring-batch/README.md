@@ -292,11 +292,11 @@ public class JobRunner implements ApplicationRunner {
     }
   }
   ```
-- ![first-job-instance](./images/execution/first-job-instance.png)
-- ![first-job-execution](./images/execution/first-job-execution.png)
+- ![first-job-instance](./images/job-execution/first-job-instance.png)
+- ![first-job-execution](./images/job-execution/first-job-execution.png)
 - status=`COMPLETED`로 되어있다.
 - 여기서 재구동하면 동일한 job instance가 존재하니, 파라미터를 바꾸라는 에러가 뜬다.  
-- ![first-error](./images/execution/first-error.png)
+- ![first-error](./images/job-execution/first-error.png)
 - 이번엔 스텝에 에러를 추가해보자. `next(step2())` 파라미터를 name=user2로 전달.
 - ```
     @Bean
@@ -327,13 +327,13 @@ public class JobRunner implements ApplicationRunner {
                 .build();
     }  
   ```
-- ![second-job-execution](./images/execution/second-job-execution.png)
+- ![second-job-execution](./images/job-execution/second-job-execution.png)
 - 실행시켜보면 status=`FAILED`로 저장되어있다. 
 - 이때 다시 실행시켜보자. 
-- ![third-job-execution](./images/execution/third-job-execution.png)
+- ![third-job-execution](./images/job-execution/third-job-execution.png)
 - COMPLETED이 아닌 FAILED로 끝났기 때문에 동일한 job과 파라미터로 시도해도 데이터가 추가된다. 
 - step2()에 exception 부분을 return RepeatStatus.FINISHED로 바꾸고 실행시켜보자. 
-- ![fourth-job-execution](./images/execution/fourth-job-execution.png)
+- ![fourth-job-execution](./images/job-execution/fourth-job-execution.png)
 - 이번엔 `FAILED` 대신에 `COMPLETED`로 바뀌어있다. 
 - COMPLETED일때 다시 실행시켜보면 `A job instance already exists and is complete for parameters={name=user2}.  If you want to run this job again, change the parameters.` 에러가 발생한다.   
 - `즉, 동일한 job, jobParameters에 대해서 성공하면 다음번에 실행이 안되고, 실패하면 job_execution에 계속 추가되어 계속 시도한다.` 
@@ -352,8 +352,27 @@ public class JobRunner implements ApplicationRunner {
 - JobStep
   + Step 내에서 Job을 실행 
 - FlowStep
-  + + Step 내에서 flow를 실행 
+  + Step 내에서 flow를 실행 
 
+# StepExecution
+- Step을 한 번의 시도를 의미하는 객체로서 Step 실행 중에 발생한 정보들을 저장하는 객체 
+- Step이 시도될때 생성되고, 각 Step 별로 생성
+- Job이 재시작 하더라도 이미 completed한 Step은 재실행 되지 않고 failed한 Step만 실행됨 
+- Step이 하나라도 실패하면 JobExecution은 failed로 저장되고, 모든 Step이 성공하면 JobExecution은 completed로 저장된다.
+- JobExecution과 StepExecution은 1:M 관계 
 
-
+## BATCH_STEP_EXECUTION
+- step을 3개 갖는 job을 실행.  
+- ![step-execution1](./images/step-execution/step-execution1.png)
+- ![job-execution1](./images/step-execution/job-execution1.png)
+- 실행 결과를 보면 step 3개가 completed고 JobExecution이 completed로 되어있음.
+- 이번엔 step2에 에러를 발생시키고 파라미터 값을 바꿔서 실행 
+- ![step-execution2](./images/step-execution/step-execution2.png)
+- ![job-execution2](./images/step-execution/job-execution2.png)
+- 실행 결과를 보면, StepExecution step2 에서 FAILED가 발생했다. 실패한 step까지만 진행했고, step3는 진행되지 않은걸 볼 수 있다. JobExecution은 FAILED로 저장되어 있다.
+  step2에 exception을 주석처리하고 return RepeatStatus.FINISHED로 바꾸서 다시 실행시켜보자.
+- ![step-execution3](./images/step-execution/step-execution3.png)
+- ![job-execution3](./images/step-execution/job-execution3.png)
+- 실행 결과를 보면, 실패한 step2부터 실행하여 나머지 step3까지 수행했다. JobExecution은 COMPLETED 로 저장되어 있다.
+- `즉, 하나의 Job은 여러 개의 Step으로 구성되고, 도중에 Step이 실패하면 성공적으로 완료된 step은 재 실행되지 않고 실패한 step 만 실행된다.` 
 
