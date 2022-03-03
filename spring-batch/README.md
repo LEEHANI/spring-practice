@@ -376,3 +376,17 @@ public class JobRunner implements ApplicationRunner {
 - 실행 결과를 보면, 실패한 step2부터 실행하여 나머지 step3까지 수행했다. JobExecution은 COMPLETED 로 저장되어 있다.
 - `즉, 하나의 Job은 여러 개의 Step으로 구성되고, 도중에 Step이 실패하면 성공적으로 완료된 step은 재 실행되지 않고 실패한 step 만 실행된다.` 
 
+# StepContribution
+- 청크 프로세스 변경 사항을 저장해뒀다가 apply 메서드를 통해 StepExecution에 상태를 업데이트 하는 도메인 객체 
+- ExitStatus는 사용자 정희하여 사용할 수 있음. 
+
+# ExecutionContext
+- `StepExecution` or `JobExecution` 객체의 상태를 저장하는 `공유 객체` 
+- 키/값으로 된 map 형태 
+- StepExecution
+  + 각 Step의 StepExecution에 저장되며 Step 간 서로 공유 안됨
+- JobExeuction
+  + 각 Job의 JobExecution에 저장되며 Job간 서로 공유는 안되며 해당 Job의 Step간 서로 공유됨 
+![execution-context](./images/execution-context.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+
+# JobRepository 
