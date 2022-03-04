@@ -390,3 +390,40 @@ public class JobRunner implements ApplicationRunner {
 ![execution-context](./images/execution-context.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 
 # JobRepository 
+- 배치 작업 중 정보를 저장하는 메타 데이터
+- @EnableBatchProcessing 어노테이션을 선언하면 JobRepositroy가 빈으로 생성됨
+- ```
+  @Component
+  @Slf4j
+  public class JobRepositoryListener implements JobExecutionListener {
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Override
+    public void beforeJob(JobExecution jobExecution) {
+
+    }
+
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        String jobName = jobExecution.getJobInstance().getJobName();
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("name", "user4")
+                .toJobParameters();
+
+
+        JobExecution lastJobExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
+        if(lastJobExecution != null) {
+            for(StepExecution execution : lastJobExecution.getStepExecutions()) {
+                BatchStatus status = execution.getStatus();
+                ExitStatus exitStatus = execution.getExitStatus();
+
+                log.info("status = {}, exitStatus = {}", status, exitStatus);
+            }
+        }
+    }
+  }
+  ```
+- JobExecutionListener를 통해서 job이 끝날때 jobRepositroy에서 배치 작업에 대한 정보를 이것 저것 볼 수 있다. 
+- 
