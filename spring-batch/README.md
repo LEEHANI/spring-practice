@@ -425,5 +425,14 @@ public class JobRunner implements ApplicationRunner {
     }
   }
   ```
-- JobExecutionListener를 통해서 job이 끝날때 jobRepositroy에서 배치 작업에 대한 정보를 이것 저것 볼 수 있다. 
-- 
+- JobExecutionListener를 통해서 job이 끝날때 jobRepository 에서 배치 작업에 대한 정보를 이것 저것 볼 수 있다.
+
+# JobLauncher
+- 배치 Job을 실행시키는 역할 
+- 실행시킬 때, Job, JobParameters가 인자로 필요함. 
+- 스프링 부트에서는 JobLauncher 빈이 자동 생성되어 구동됨. 
+![job-launcher-sync-async](/images/job-launcher-sync-async.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+- 기본은 동기적으로 실행되고, SimpleAsyncTaskExecutor를 사용하여 비동기적으로 실행 가능 
+
+
+

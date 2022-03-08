@@ -1,4 +1,4 @@
-package com.example.springbatch.job.repository;
+package com.example.springbatch.job.launcher;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -9,18 +9,17 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class JobRepositoryBatch {
+public class JobLauncherBatch {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final JobRepositoryListener jobRepositoryListener;
 
     @Bean
-    public Job batchJob() {
-        return this.jobBuilderFactory.get("context job")
+    public Job job() {
+        return jobBuilderFactory.get("job")
                 .start(step1())
-                .listener(jobRepositoryListener)
+                .next(step2())
                 .build();
     }
 
@@ -28,7 +27,17 @@ public class JobRepositoryBatch {
     public Step step1() {
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("job execution step1 was executed");
+                        System.out.println("job execution step1 was executed");
+                        return RepeatStatus.FINISHED;
+                })
+                .build();
+    }
+
+    @Bean
+    public Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet((contribution, chunkContext) -> {
+                    System.out.println("job execution step2 was executed");
                     return RepeatStatus.FINISHED;
                 })
                 .build();
