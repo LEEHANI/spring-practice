@@ -30,5 +30,7 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+#      table-prefix: BATCH
     job:
-      enabled: false
+#      enabled: false
+      names: ${job.name:NONE} # arg 없을시 job 아무것도 실행안됨. program arguments: --job.name=job

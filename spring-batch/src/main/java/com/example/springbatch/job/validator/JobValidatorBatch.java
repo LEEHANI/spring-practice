@@ -1,17 +1,18 @@
-package com.example.springbatch.job.launcher;
+package com.example.springbatch.job.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 //@Configuration
 @RequiredArgsConstructor
-public class JobLauncherBatch {
+public class JobValidatorBatch {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
@@ -19,7 +20,8 @@ public class JobLauncherBatch {
     public Job job() {
         return jobBuilderFactory.get("job")
                 .start(step1())
-                .next(step2())
+//                .validator(new CustomJobParametersValidator())
+                .validator(new DefaultJobParametersValidator(new String[]{"name"}, new String[]{"count"}))
                 .build();
     }
 
@@ -27,19 +29,11 @@ public class JobLauncherBatch {
     public Step step1() {
         return stepBuilderFactory.get("step1")
                 .tasklet((contribution, chunkContext) -> {
-                        System.out.println("job execution step1 was executed");
-                        return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
-
-    @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("job execution step2 was executed");
+                    System.out.println("job execution step1 was executed");
                     return RepeatStatus.FINISHED;
                 })
                 .build();
     }
+
+
 }

@@ -435,4 +435,29 @@ public class JobRunner implements ApplicationRunner {
 - 기본은 동기적으로 실행되고, SimpleAsyncTaskExecutor를 사용하여 비동기적으로 실행 가능 
 
 
+# SimpleJob API 
+![SimpleJob](/images/SimpleJob.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+- SimpleJob은 Step을 실행시키는 Job의 구현체로서 SimpleJobBuilder에 의해 생성된다. 
+- ```
+  public Job batchJob() {
+      return jobBuilderFactory.get(“batchJob")
+                .start(step1())
+                .next(step2())
+                .incrementer(JobParametersIncrementer)
+                .preventRestart(true)
+                .validator(JobParameterValidator)
+                .listener(JobExecutionListener)
+                .build();
+  } 
+  ```
+- `start(step1())`는 처음 실행 할 Step 설정 
+- `next(step2())`는 다음에 실행한 Step을 순차적으로 설정. 앞의 step이 실패하면 나머지 step은 진행하지 못함. 갯수 제한은 없음. 
+- `incrementer(JobParametersIncrementer)`는 JobParameter의 값을 자동으로 증가해주는 설정. 
+  + custom할 수  있고, new RunIdIncrementer()를 사용하면 매번 job을 실행시킬 수 있다. 
+- `preventRestart(true)`는 실패했을 때, 재 시작 가능 여부 설정. default true
+- `validator(JobParameterValidator)`는 JobParameter를 실행하기 전에 올바른 파라미터 값인지 검증하는 설정
+  + custom할 수 있고, new DefaultJobParametersValidator를 이용해 key의 필수값과 옵션값을 지정할 수 있다. 
+- `listener(JobExecutionListener)`는 Job 라이프 사이클의 특정 시점에 콜백 받을 수 있도록 제공 
+
+
 
