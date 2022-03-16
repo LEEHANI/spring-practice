@@ -434,6 +434,14 @@ public class JobRunner implements ApplicationRunner {
 ![job-launcher-sync-async](/images/job-launcher-sync-async.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - 기본은 동기적으로 실행되고, SimpleAsyncTaskExecutor를 사용하여 비동기적으로 실행 가능 
 
+# JobBuilderFactory/ JobBuilder
+## JobBuilderFactory
+- JobBuilder를 생성하는 팩토리 클래스. 
+- get 메서드 제공. jobBuilderFactory.get("job-test")
+
+## JobBuilder
+- SimpleJobBuilder
+- FlowJobBuilder
 
 # SimpleJob API 
 ![SimpleJob](/images/SimpleJob.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
@@ -459,5 +467,17 @@ public class JobRunner implements ApplicationRunner {
   + custom할 수 있고, new DefaultJobParametersValidator를 이용해 key의 필수값과 옵션값을 지정할 수 있다. 
 - `listener(JobExecutionListener)`는 Job 라이프 사이클의 특정 시점에 콜백 받을 수 있도록 제공 
 
+# StepBuilderFactory/ StepBuilder
+## StepBuilderFactory
+- StepBuilder를 생성하는 팩토리 클래스.
+- get 메서드 제공. StepBuilder.get("step-test")
 
+## StepBuilder
+- TaskletStepBuilder
+- SimpleStepBuilder
+  + 청크기반 작업 처리
+- PartitionStepBuilder
+  + 멀티 스레드 방식으로 job 생성 
+- JobStepBuilder
+- FlowStepBuilder
 
