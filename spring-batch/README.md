@@ -444,7 +444,7 @@ public class JobRunner implements ApplicationRunner {
 - FlowJobBuilder
 
 # SimpleJob API 
-![SimpleJob](/images/SimpleJob.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+![SimpleJob](./images/SimpleJob.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - SimpleJob은 Step을 실행시키는 Job의 구현체로서 SimpleJobBuilder에 의해 생성된다. 
 - ```
   public Job batchJob() {
@@ -473,11 +473,59 @@ public class JobRunner implements ApplicationRunner {
 - get 메서드 제공. StepBuilder.get("step-test")
 
 ## StepBuilder
-- TaskletStepBuilder
-- SimpleStepBuilder
+![stepbuilder](./images/stepbuilder.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+- [`TaskletStepBuilder`](#TaskletStep)
+- [`SimpleStepBuilder`](#JobStep)
   + 청크기반 작업 처리
-- PartitionStepBuilder
+- `PartitionStepBuilder`
   + 멀티 스레드 방식으로 job 생성 
-- JobStepBuilder
-- FlowStepBuilder
+- `JobStepBuilder`
+- `FlowStepBuilder`
 
+# TaskletStep
+- ```
+  public Step batchStep() {
+        return stepBuilderFactory.get(“batchStep")
+                .tasklet(Tasklet)
+                //.<String, String>chunk(10) 청크 기반 
+                .startLimit(10) 
+                .allowStartIfComplete(true)
+                .listener(StepExecutionListener)
+                .build();
+  }  
+  ```
+- `tasklet(Tasklet)`는 Tasklet 클래스 설정. 
+- `startLimit(10)`는 Step의 실행 횟수를 설정. 초과시 오류 발생. 기본값은 INTEGER.MAX_VALUE 
+- `allowStartIfComplete(true)`는 step의 성공, 실패와 상관없이 항상 Step을 실행시킴. 유효성 검증하는 step이나 사전 작업이 필요한 step에 적용
+- `listener(StepExecutionListener)`는 라이프 사이클의 특정 시점에 콜백을 제공받도록 StepExecutionListener 설정
+
+## Tasklet
+- 단일 태스크를 수행하기 위한 것 
+- TaskletStep에 의해 반복적으로 수행되며 반환값에 따라 계속 수행 혹은 종료함.
+- ```
+  .tasklet((contribution, chunkContext) -> {
+           System.out.println("job execution step1 was executed");
+           return RepeatStatus.FINISHED;
+  })
+  ```
+- RepeatStatus.FINISHED - Tasklet 종료, RepeatStatus 을 null 로 반환해도 RepeatStatus.FINISHED로 해석
+- RepeatStatus.CONTINUABLE - Tasklet 반복
+
+
+# JobStep
+- step안에 외부의 Job을 포함하고 있는 형태 
+- 외부의 job이 실패하면 해당 step이 실패하므로 결국 최종 job도 실패한다. 
+- ```
+  public Step jobStep() {
+        return stepBuilderFactory.get("jobStep")
+                .job(Job)
+                .launcher(JobLauncher)
+                .parametersExtractor(JobParametersExtractor)
+                .build();
+  }
+  ```
+- `job(job)`는 JobStep 내에서 실행될 job 설정 
+- `launcher(JobLauncher)`는 job을 실행할 jobLauncher 설정 
+- `parametersExtractor(JobParametersExtractor)`는 Job이 실행되는데 필요한 jobParameters로 변환 
+
+  
