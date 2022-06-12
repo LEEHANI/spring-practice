@@ -4,13 +4,14 @@
 
 ## 핵심 패턴
 - Read: DB, 큐, 파일 등에서 데이터 조회
-- Process
-- Write
+- Process: 데이터 가공 
+- Write: 데이터 쓰기
 
 ## 배치 시나리오
-- 대용량 병렬 처리
-- 실패 후 수동 또는 스케줄링에 의한 재시작
-- 의존관계 step을 순차적으로 처리
+- 배치 프로세스를 주기적으로 커밋 
+- 동시 다발적인 job의 배치 처리, `대용량 병렬 처리`
+- `실패 후 수동 또는 스케줄링에 의한 재시작`
+- `의존관계 step을 순차적으로 처리`
 
 ## 스프링 배치 초기화 설정 클래스 
 - `BatchAutoConfiguration` 
@@ -96,11 +97,11 @@
     }
   } 
   ```
-- `Job`이 구동되면 `Step`을 실행하고 Step이 구동되면 `Taskelt`(작업내용)을 실행하도록 설정함
+- `Job`이 구동되면 `Step`을 실행하고 Step이 구동되면 `Tasklet`(작업내용)을 실행하도록 설정함
 
 ## 메타 테이블
 ![MetaTable](./images/MetaTable.png)
-- 스프링 배치 실행 및 관리를 위해 배치 실행 사항들을 DB에 저장할 수 있음  
+- 스프링 배치 실행 및 관리를 위해 `배치 실행 사항들을 DB에 저장`할 수 있음  
 - 스키마 위치 `/org/springframework/batch/core/schema-*.sql`
 - 기본으로 `h2같은 embedded db를 사용하면 테이블이 자동으로 생성` 된다.
 - `MySQL`을 사용하려면 `schema-mysql.sql`를 복사해서 테이블을 생성해야 한다.
@@ -108,12 +109,33 @@
   + `ALWAYS`: 스크립트 항상 실행. RDBMS -> 내장 DB 순서로 실행
   + `EMBEDDED`: 내장 DB일 때 스키마 자동 생성 
   + `NEVER`: 스크립트 실행 안함. 내장 DB일 경우 스크립트 생성이 안되기 때문에 오류 발생
+  
+## Job 관련 테이블
+### BATCH_JOB_INSTANCE
+- Job이 실행될 때 JobInstance 정보가 저장. 최상위 역할.
+- `JOB_NAME`, `JOB_KEY`를 키로 하나의 데이터가 저장 (중복 불가)
+
+### BATCH_JOB_EXECUTION
+- job의 실행 정보가 저장. 
+
+### BATCH_JOB_EXECUTION_PARAMS
+- job과 함께 실행되는 jobParameter 정보를 저장 
+
+### BATCH_JOB_EXECUTION_CONTEXT
+- job이 실행되는 동안 여러가지 상태 정보, 공유 데이터를 직렬화 해서 저장 
+- step 간 서로 공유 가능 
+
+## Step 관련 테이블
+### BATCH_STEP_EXECUTION
+### BATCH_STEP_EXECUTION_CONTEXT
+
 
 ## MySQL로 메타 테이블 관리 
-- 디비 연결 
+### 디비 연결 
 ![mysql-connection](./images/mysql-connection.png)
 ![mysql-mata-table](./images/mysql-mata-table.png)
-- application.yml 설정 
+
+### application.yml 설정 
 ```
 spring:
   profiles:
@@ -149,38 +171,29 @@ spring:
       initialize-schema: always
 ```
 
-### Job 관련 테이블 
-- BATCH_JOB_INSTANCE
-- BATCH_JOB_EXECUTION
-- BATCH_JOB_EXECUTION_PARAMS
-- BATCH_JOB_EXECUTION_CONTEXT
-
-### Step 관련 테이블 
-- BATCH_STEP_EXECUTION
-- BATCH_STEP_EXECUTION_CONTEXT
-
 # Job
 - 배치 계층 구조에서 가장 상위에 있는 개념. 하나의 배치 작업 자체를 의미함. 
 - 작업의 단위. 최상위 인터페이스. 
-- 여러 Step을 포함하고 있는 컨테이너. 반드시 한개 이상의 Step으로 구성해야함.
+- `여러 Step을 포함하고 있는 컨테이너. 반드시 한개 이상의 Step으로 구성해야함.`
 
 ## Job 구현체 
 - `SimpleJob`
-  + 순차적으로 Step을 실행시키는 Job
+  + `순차적`으로 Step을 실행시키는 Job
   + 표준 기능
 - `FlowJob`
-  + 특정한 조건과 흐름에 따라 Step을 구성하여 실행시키는 Job 
+  + `특정한 조건`과 흐름에 따라 Step을 구성하여 실행시키는 Job 
   + Flow 객체를 실행시켜서 작업을 진행 
   
-# JobInstance
+# JobInstance, BATCH_JOB_INSTANCE
 ![JobInstance](./images/JobInstance.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - `JobInstance`는 `Job이 실행될 때 생성`되고, `Job의 논리적 실행 단위`로서 작업 현황을 디비에 저장하는 메타데이터
 - `Job`의 `설정과 구성은 동일해도 실행되는 시점에 처리하는 내용(Job, JobParameter)은 다르기 때문에 Job의 실행을 구분`해야한다. 
 - 최초 실행하면 Job(jobName), JobParameter(jobKey) 정보가 JobInstance로 생성되어 JOB_INSTANCE 테이블에 저장된다.
+  + 내부적으로 jobName + jobKey(jobParameter 해쉬값)으로 JobInstance 객체를 얻는다. 
 - 이전과 동일한 정보인 경우 기존 JobInstance 정보를 얻는다. (동일한 내용으로는 수행 불가)  
 - 즉, 똑같은 JobInstance는 하나밖에 없다. 
 
-## BATCH_JOB_INSTANCE
+## BATCH_JOB_INSTANCE 실습
 - 간단한 job을 만들어서 구동시켜보자.  
 - ```java
   @Configuration
@@ -213,10 +226,10 @@ spring:
 - BATCH_JOB_INSTANCE를 조회해보면 구동시킨 job 정보가 들어있다. 
 - ![job-instance-table](./images/job-instance-table.png)
 - `JOB_NAME`은 `jobBuilderFactory.get("job")`이고 `JOB_KEY`는 `jobParameters에 해시`를 적용한 값이다. 
-- job을 실행할 때 외부에서 파라미터 값을 받아서 jobParamter값으로 사용할 수 있다.
-- 위에 설명한 것처럼, `동일한 job에 대해서는 BATCH_JOB_INSTANCE에 기록되지 않는다.` 
+- `job을 실행할 때 외부에서 파라미터 값을 받아서 jobParamter값으로 사용할 수 있다.`
 - 배치를 다시 구동시켜보면, 데이터가 그대로인걸 볼 수 있다.
-- 파라미터를 넘겨주기 위해서 `JobLauncher`로 job을 구동시켜보면 job, jobParameter 값이 기존에 없기에 JobInstance가 새로 생성된다. 
+  + 위에 설명한 것처럼, `동일한 job에 대해서는 BATCH_JOB_INSTANCE에 기록되지 않는다.`
+
 ```
 @Component
 public class JobRunner implements ApplicationRunner {
@@ -238,13 +251,14 @@ public class JobRunner implements ApplicationRunner {
     }
 }
 ```
-- ![JobInstance-with-param](./images/JobInstance-with-param.png)
-- ![JobInstance-execution-params](./images/JobInstance-execution-params.png)
+- 파라미터를 넘겨주기 위해서 `JobLauncher`로 job을 구동시켜보면 job, jobParameter 값이 기존에 없기에 JobInstance가 새로 생성된다.
+![JobInstance-with-param](./images/JobInstance-with-param.png)
+![JobInstance-execution-params](./images/JobInstance-execution-params.png)
 
-# JobParameter 
+# JobParameter, BATCH_JOB_EXECUTION_PARAM 
 - Job을 실행할 때 사용되는 파라미터
 - JobInstance를 구분하기 위한 용도 
-- JobParamters와 JobInstance는 1:1 관계
+- `JobParamters와 JobInstance`는 `1:1 관계`
 - 파라미터 타입은 String, double, date, long 이다.  
 
 ## 생성 및 바인딩 
@@ -260,13 +274,16 @@ public class JobRunner implements ApplicationRunner {
     ```
 - SpEL 이용 
   + @Value("#{jobParameters[datetime]}"), @JobScope, @StepScope 선언 필수 
+- ![JobParameter](./images/JobParameter.png)
 
-# JobExecution
+# JobExecution, BATCH_JOB_EXECUTION
 - `JobInstance`를 `한 번 시도` 하는 것을 의미하는 객체. Job 실행 중에 발생한 정보들을 저장하는 객체 
 - JobInstance 와 JobExecution 는 1:M 의 관계로서 JobInstance 에 대한 성공/실패의 내역을 가지고 있음
+- `status`에는 `FAILED` or `COMPLETED`의 상태가 있음. 
+- `status가 COMPLETED 상태가 될 때까지 동일한 JobParameter의 JobInstance를 여러 번 시도할 수 있음.` 
 
-## BATCH_JOB_EXECUTION
-- 최초 `Job`을 만들어서 파라미터를 `name=user1`로 전달하여 돌려보면 다음과 같다.
+## BATCH_JOB_EXECUTION 실습 
+- 최초 `Job`을 만들어서 `파라미터를 name=user1`로 전달하여 돌려보면 다음과 같다.
 - ```java
   @Configuration
   @RequiredArgsConstructor
@@ -297,7 +314,7 @@ public class JobRunner implements ApplicationRunner {
 - status=`COMPLETED`로 되어있다.
 - 여기서 재구동하면 동일한 job instance가 존재하니, 파라미터를 바꾸라는 에러가 뜬다.  
 - ![first-error](./images/job-execution/first-error.png)
-- 이번엔 스텝에 에러를 추가해보자. `next(step2())` 파라미터를 name=user2로 전달.
+- 이번엔 스텝에 에러를 추가해보자. `next(step2())`, `파라미터를 name=user2`로 전달.
 - ```
     @Bean
     public Job job() {
@@ -475,11 +492,11 @@ public class JobRunner implements ApplicationRunner {
 ## StepBuilder
 ![stepbuilder](./images/stepbuilder.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - [`TaskletStepBuilder`](#TaskletStep)
-- [`SimpleStepBuilder`](#JobStep)
+- `SimpleStepBuilder`
   + 청크기반 작업 처리
 - `PartitionStepBuilder`
   + 멀티 스레드 방식으로 job 생성 
-- `JobStepBuilder`
+- [`JobStepBuilder`](#JobStep)
 - `FlowStepBuilder`
 
 # TaskletStep
