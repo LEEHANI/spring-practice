@@ -359,7 +359,7 @@ public class JobRunner implements ApplicationRunner {
 # Step
 ![step_architecture](./images/step_architecture.png)
 - Job을 구성하는 독립적인 하나의 단계
-- 실제 비즈니스 로직이 들어감 
+- 입력, 처리, 출력과 관련된 실제 비즈니스 로직이 들어감 
 
 ## 기본 구현체 
 - TaskletStep
@@ -372,11 +372,11 @@ public class JobRunner implements ApplicationRunner {
   + Step 내에서 flow를 실행 
 
 # StepExecution
-- Step을 한 번의 시도를 의미하는 객체로서 Step 실행 중에 발생한 정보들을 저장하는 객체 
+- `Step을 한 번의 시도`를 의미하는 객체로서 Step 실행 중에 발생한 정보들을 저장하는 객체
 - Step이 시도될때 생성되고, 각 Step 별로 생성
 - Job이 재시작 하더라도 이미 completed한 Step은 재실행 되지 않고 failed한 Step만 실행됨 
 - Step이 하나라도 실패하면 JobExecution은 failed로 저장되고, 모든 Step이 성공하면 JobExecution은 completed로 저장된다.
-- JobExecution과 StepExecution은 1:M 관계 
+- `JobExecution`과 `StepExecution`은 `1:M` 관계
 
 ## BATCH_STEP_EXECUTION
 - step을 3개 갖는 job을 실행.  
@@ -394,21 +394,30 @@ public class JobRunner implements ApplicationRunner {
 - `즉, 하나의 Job은 여러 개의 Step으로 구성되고, 도중에 Step이 실패하면 성공적으로 완료된 step은 재 실행되지 않고 실패한 step 만 실행된다.` 
 
 # StepContribution
-- 청크 프로세스 변경 사항을 저장해뒀다가 apply 메서드를 통해 StepExecution에 상태를 업데이트 하는 도메인 객체 
-- ExitStatus는 사용자 정희하여 사용할 수 있음. 
+- `청크 프로세스 변경 사항을 저장해뒀다가(버퍼)` `apply` 메서드를 통해 `StepExecution에 상태`를 `업데이트` 하는 도메인 객체 
+- ExitStatus는 사용자 정의하여 사용할 수 있음. 
+![step-contribution](./images/step-contribution.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 
 # ExecutionContext
 - `StepExecution` or `JobExecution` 객체의 상태를 저장하는 `공유 객체` 
 - 키/값으로 된 map 형태 
 - StepExecution
-  + 각 Step의 StepExecution에 저장되며 Step 간 서로 공유 안됨
+  + 각 Step의 StepExecution에 저장되며 `Step 간 서로 공유 안됨`
 - JobExeuction
-  + 각 Job의 JobExecution에 저장되며 Job간 서로 공유는 안되며 해당 Job의 Step간 서로 공유됨 
+  + 각 Job의 JobExecution에 저장되며 `Job간 서로 공유는 안되며` 해당 `Job의 Step간 서로 공유`됨 
 ![execution-context](./images/execution-context.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 
 # JobRepository 
-- 배치 작업 중 정보를 저장하는 메타 데이터
+- `배치` 작업 중 정보를 저장하는 `메타 데이터`
 - @EnableBatchProcessing 어노테이션을 선언하면 JobRepositroy가 빈으로 생성됨
+- ```java
+  @EnableBatchProcessing
+  public class SpringBatchApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBatchApplication.class, args);
+    }
+  }
+  ```
 - ```
   @Component
   @Slf4j
@@ -445,24 +454,27 @@ public class JobRunner implements ApplicationRunner {
 - JobExecutionListener를 통해서 job이 끝날때 jobRepository 에서 배치 작업에 대한 정보를 이것 저것 볼 수 있다.
 
 # JobLauncher
-- 배치 Job을 실행시키는 역할 
-- 실행시킬 때, Job, JobParameters가 인자로 필요함. 
+- 배치 Job을 `실행`시키는 역할 
+- 실행시킬 때, `Job`, `JobParameters`가 인자로 필요함. 
 - 스프링 부트에서는 JobLauncher 빈이 자동 생성되어 구동됨. 
-![job-launcher-sync-async](/images/job-launcher-sync-async.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
-- 기본은 동기적으로 실행되고, SimpleAsyncTaskExecutor를 사용하여 비동기적으로 실행 가능 
+![job-launcher-sync-async](./images/job-launcher-sync-async.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+- `기본`은 SynckTaskExecutor로 `동기적`으로 실행되고, SimpleAsyncTaskExecutor를 사용하여 `비동기적으로 실행 가능` 
+
 
 # JobBuilderFactory/ JobBuilder
 ## JobBuilderFactory
+![JobBuilderFactory-JobBuilder](./images/JobBuilderFactory-JobBuilder.png)
 - JobBuilder를 생성하는 팩토리 클래스. 
 - get 메서드 제공. jobBuilderFactory.get("job-test")
 
 ## JobBuilder
-- SimpleJobBuilder
-- FlowJobBuilder
+- `SimpleJobBuilder`
+- `FlowJobBuilder`
 
 # SimpleJob API 
 ![SimpleJob](./images/SimpleJob.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - SimpleJob은 Step을 실행시키는 Job의 구현체로서 SimpleJobBuilder에 의해 생성된다. 
+- step을 순차적으로 실행시킨다. 
 - ```
   public Job batchJob() {
       return jobBuilderFactory.get(“batchJob")
@@ -479,8 +491,8 @@ public class JobRunner implements ApplicationRunner {
 - `next(step2())`는 다음에 실행한 Step을 순차적으로 설정. 앞의 step이 실패하면 나머지 step은 진행하지 못함. 갯수 제한은 없음. 
 - `incrementer(JobParametersIncrementer)`는 JobParameter의 값을 자동으로 증가해주는 설정. 
   + custom할 수  있고, new RunIdIncrementer()를 사용하면 매번 job을 실행시킬 수 있다. 
-- `preventRestart(true)`는 실패했을 때, 재 시작 가능 여부 설정. default true
-- `validator(JobParameterValidator)`는 JobParameter를 실행하기 전에 올바른 파라미터 값인지 검증하는 설정
+- `preventRestart(true)`는 재 시작 가능 여부 설정. false이면 실패여도 재시작 안함. default true
+- `validator(JobParameterValidator)`는 JobParameter를 실행하기 전에 올바른 `파라미터 값`인지 `검증`하는 설정
   + custom할 수 있고, new DefaultJobParametersValidator를 이용해 key의 필수값과 옵션값을 지정할 수 있다. 
 - `listener(JobExecutionListener)`는 Job 라이프 사이클의 특정 시점에 콜백 받을 수 있도록 제공 
 
@@ -491,6 +503,7 @@ public class JobRunner implements ApplicationRunner {
 
 ## StepBuilder
 ![stepbuilder](./images/stepbuilder.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
+![stepbuilder2](./images/stepbuilder2.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - [`TaskletStepBuilder`](#TaskletStep)
 - `SimpleStepBuilder`
   + 청크기반 작업 처리
@@ -499,12 +512,12 @@ public class JobRunner implements ApplicationRunner {
 - [`JobStepBuilder`](#JobStep)
 - `FlowStepBuilder`
 
-# TaskletStep
+# TaskletStep. Task 기반, Chunk 기반
 - ```
   public Step batchStep() {
         return stepBuilderFactory.get(“batchStep")
-                .tasklet(Tasklet)
-                //.<String, String>chunk(10) 청크 기반 
+                .tasklet(Tasklet) // Task 기반
+                //.<String, String>chunk(10) // Chunk 기반 
                 .startLimit(10) 
                 .allowStartIfComplete(true)
                 .listener(StepExecutionListener)
@@ -516,21 +529,24 @@ public class JobRunner implements ApplicationRunner {
 - `allowStartIfComplete(true)`는 step의 성공, 실패와 상관없이 항상 Step을 실행시킴. 유효성 검증하는 step이나 사전 작업이 필요한 step에 적용
 - `listener(StepExecutionListener)`는 라이프 사이클의 특정 시점에 콜백을 제공받도록 StepExecutionListener 설정
 
-## Tasklet
-- 단일 태스크를 수행하기 위한 것 
+## Tasklet()
+- `단일 태스크`를 수행하기 위한 것 
 - TaskletStep에 의해 반복적으로 수행되며 반환값에 따라 계속 수행 혹은 종료함.
 - ```
+  return stepBuilderFactory.get(“batchStep")
   .tasklet((contribution, chunkContext) -> {
-           System.out.println("job execution step1 was executed");
-           return RepeatStatus.FINISHED;
+      System.out.println("job execution step1 was executed");
+      return RepeatStatus.FINISHED;
   })
+  ...
+  .build();
   ```
-- RepeatStatus.FINISHED - Tasklet 종료, RepeatStatus 을 null 로 반환해도 RepeatStatus.FINISHED로 해석
-- RepeatStatus.CONTINUABLE - Tasklet 반복
+- `RepeatStatus.FINISHED` - Tasklet 종료, RepeatStatus 을 null 로 반환해도 RepeatStatus.FINISHED로 해석
+- `RepeatStatus.CONTINUABLE` - Tasklet 반복. 무한루프 주의
 
 
 # JobStep
-- step안에 외부의 Job을 포함하고 있는 형태 
+- `step안에 외부의 Job을 포함하고 있는 형태` 
 - 외부의 job이 실패하면 해당 step이 실패하므로 결국 최종 job도 실패한다. 
 - ```
   public Step jobStep() {
@@ -541,8 +557,101 @@ public class JobRunner implements ApplicationRunner {
                 .build();
   }
   ```
-- `job(job)`는 JobStep 내에서 실행될 job 설정 
+- `job(job)`는 step 내부에서 실행될 job 설정
 - `launcher(JobLauncher)`는 job을 실행할 jobLauncher 설정 
 - `parametersExtractor(JobParametersExtractor)`는 Job이 실행되는데 필요한 jobParameters로 변환 
 
+
+# FlowJob 
+![flow](./images/flow.png) 
+- Step 처럼 순차적으로 실행하는 것이 아닌, `성공 실패에 따라 다른 수행을 진행해야할 때` 사용
+  - stepA == success ? stepB : stepC
+- ```
+  public Job batchJob() {
+        return jobBuilderFactory.get(“batchJob")
+                .start(Step1) //처음 실행할 flow 
+                  .on(String pattern) //Step1의 종료 상태 매칭 패턴 
+                  .to(Step2) //pattern이 만족되면 to(Step2)로 진행
+                  .stop() / fail() / end() / stopAndRestart() //Step2 실행 후 Step의 종료 상태 transition 
+                .from(Step1) //위에서 Step1 Transition을 이미 정의했는데 새롭게 Transition을 정의할 때 from() 사용 
+                  .next(Step3) //다음으로 이동할 Step3
+                .end() //종료 
+                .build()
+    }
+  ```
+## Transition 
+- on(), to(), stop(), fail(), end(), stopAndRestart()
+### on(pattern)
+- step의 실행 결과로 돌려받는 종료 상태(ExitStatus)와 매칭
+- 일치하는 pattern이 없으면 예외가 발생하고 Job은 실패
+### to() 
+- 다음으로 실행할 단계 
+### from() 
+- 이전 단계에서 정의한 Transition을 새롭게 추가 정의
+### stop(), fail(), end(), stopAndRestart()
++ stop(): BatchStatus, ExitStatus가 `STOPPED`로 종료
++ fail(): BatchStatus, ExitStatus가 `FAILED`로 종료
++ end(): BatchStatus, ExitStatus가 `COMPLETED`로 종료
++ stopAndRestart()
+- ```
+  public Job batchJob() {
+        return jobBuilderFactory.get(“batchJob")
+                .start(step1())  
+                  .on("FAILED") //step1의 종료 상태가 FILED이면  
+                  .to(step2()) //step2()를 실행 
+                  .on("*") //step2()가 완료하면 stop()해라 
+                  .stop() 
+                .from(step1())
+                  .on("*") //step1()의 종료 상태가 FAILED 외 일때  
+                  .to(step3()) //step3()를 실행 
+                  .next(step4()) //step3() 성공하면 step4()실행
+                  .on("FAILED") //step4()가 FAILED면 end() 종료해라 
+                  .end()
+                .end() //종료 
+                .build();
+    }
+  ```
+
+## 사용자 정의 exitStatus
+- ```
+   @Bean
+    public Job batchJob() {
+        return this.jobBuilderFactory.get("batchJob")
+                .start(step1())
+                    .on("FAILED")
+                    .to(step2())
+                    .on("PASS") //step2()의 종료 코드가 PASS이면 stop 해라 
+                    .stop()
+                .end()
+                .build();
+    }
   
+  @Bean
+    public Step step2() {
+        return stepBuilderFactory.get("step2")
+                .tasklet((stepContribution, chunkContext) -> {
+                    System.out.println("step2 has executed");
+                    return RepeatStatus.FINISHED;
+                })
+                .listener(new PassCheckingListener())
+                .build();
+    }
+  ```
+- ```
+  public class PassCheckingListener implements StepExecutionListener {
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+
+    }
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        String exitCode = stepExecution.getExitStatus().getExitCode();
+
+        if(!exitCode.equals(ExitStatus.FAILED.getExitCode())) {
+            return new ExitStatus("PASS");
+        }
+        return null;
+    }
+  } 
+  ```
