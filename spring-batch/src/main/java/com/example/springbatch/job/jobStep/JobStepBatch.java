@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 import java.util.List;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class JobStepBatch {
     private final JobBuilderFactory jobBuilderFactory;
@@ -84,6 +84,7 @@ public class JobStepBatch {
                 })
                 .build();
     }
+
 
 
 

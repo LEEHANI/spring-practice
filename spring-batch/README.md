@@ -177,6 +177,7 @@ spring:
 - `여러 Step을 포함하고 있는 컨테이너. 반드시 한개 이상의 Step으로 구성해야함.`
 
 ## Job 구현체 
+![job-builder](./images/job-builder.png) (출처: 인프런 스프링 배치(정수원) 강의 노트 중 일부분)
 - `SimpleJob`
   + `순차적`으로 Step을 실행시키는 Job
   + 표준 기능
@@ -566,6 +567,7 @@ public class JobRunner implements ApplicationRunner {
 ![flow](./images/flow.png) 
 - Step 처럼 순차적으로 실행하는 것이 아닌, `성공 실패에 따라 다른 수행을 진행해야할 때` 사용
   - stepA == success ? stepB : stepC
+- Flow 내 Step의 마지막 ExitStatus 값이 FlowExecutionStatus로 저장되는데, 이는 최종 BatchStatus 값으로 반영  
 - ```
   public Job batchJob() {
         return jobBuilderFactory.get(“batchJob")
@@ -582,7 +584,7 @@ public class JobRunner implements ApplicationRunner {
 ## Transition 
 - on(), to(), stop(), fail(), end(), stopAndRestart()
 ### on(pattern)
-- step의 실행 결과로 돌려받는 종료 상태(ExitStatus)와 매칭
+- step의 실행 결과로 돌려받는 `종료 상태(ExitStatus)`와 매칭
 - 일치하는 pattern이 없으면 예외가 발생하고 Job은 실패
 ### to() 
 - 다음으로 실행할 단계 
@@ -655,3 +657,39 @@ public class JobRunner implements ApplicationRunner {
     }
   } 
   ```
+  
+## JobExecutionDecider 
+- ExitStatus를 조작하거나 StepExecutionListener를 등록할 필요 없이 Transition 처리를 위한 전용 클래스. 역할과 책임을 나눔.  
+- Step과 Transition 역할을 분리할 수 있음 
+- ```
+  public Job batchJob() {
+        return this.jobBuilderFactory.get("batchJob")
+                .incrementer(new RunIdIncrementer())
+                .start(step())
+                .next(decider()) //step()이 성공적으로 끝나면 decider()를 실행  
+                .from(decider()).on("ODD").to(oddStep()) //decider() 결과가 ODD이면 oddStep() 실행
+                .from(decider()).on("EVEN").to(evenStep()) //decider() 결과가 EVEN이면 evenStep() 실행
+                .end()
+                .build();
+  } 
+
+  @Bean
+  public JobExecutionDecider decider() {
+      return new CustomDecider();
+  }
+  ```
+- ```
+  @Override
+  public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
+      count++;
+
+      if (count % 2 == 0) {
+          return new FlowExecutionStatus("EVEN");
+      } else {
+          return new FlowExecutionStatus("ODD");
+      }
+  }
+  ```
+
+
+
