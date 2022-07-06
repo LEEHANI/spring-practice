@@ -511,7 +511,7 @@ public class JobRunner implements ApplicationRunner {
 - `PartitionStepBuilder`
   + 멀티 스레드 방식으로 job 생성 
 - [`JobStepBuilder`](#JobStep)
-- `FlowStepBuilder`
+- [`FlowStepBuilder`](#FlowStep)
 
 # TaskletStep. Task 기반, Chunk 기반
 - ```
@@ -691,5 +691,14 @@ public class JobRunner implements ApplicationRunner {
   }
   ```
 
-
-
+# FlowStep
+- step 내에 Flow를 할당하여 실행시키는 도메인 객체 
+- flowStep의 BatchStatus와 ExitStatus는 Flow의 최종 상태값에 따라 결정 
+- ```
+  public Step flowStep() {
+      return stepBuilderFactory.get("flowStep")
+              .flow(flow()) 
+              .build();
+  }
+  ```
+- `flow(flow())`는 step 내부에서 실행 될 flow 설정.  
