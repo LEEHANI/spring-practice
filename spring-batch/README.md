@@ -581,7 +581,11 @@ public class JobRunner implements ApplicationRunner {
                 .build()
     }
   ```
+
 ## Transition 
+- `Flow 내 Step의 조건부 전환`
+- Step의 종료 상태(ExitStatus)가 어떤 pattern 과도 매칭되지 않으면 예외를 발생하고 job은 실패 
+- transition은 구체적은 것부터 그렇지 않은 순서로 적용 
 - on(), to(), stop(), fail(), end(), stopAndRestart()
 ### on(pattern)
 - step의 실행 결과로 돌려받는 `종료 상태(ExitStatus)`와 매칭
@@ -691,14 +695,46 @@ public class JobRunner implements ApplicationRunner {
   }
   ```
 
+# SimpleFlow API
+![FlowJob](./images/FlowJob.png) 
+- ```
+  @Bean
+  public Job batchJob() {
+    return this.jobBuilderFactory.get("flowJob")
+            .start(flow1())  //SimpleFlow
+            .on("COMPLETED").to(step2()) //SimpleFlow
+            .end()
+            .build();
+  }
+  ```
+- Flow 안에 Step을 구성하거나 Flow를 중첩되게 구성할 수 있다. 
+![FlowJobEx](./images/FlowJobEx.png) 
+- Flow는 Transition에 따라 State 객체를 생성하여 List<StateTransition>에 저장한다 
+  + State에는 StepState, FlowState, DecisionState, SplitState가 있다. 
+- StateTransition은 현재 실행할 state와 다음 실행할 state의 정보를 가지고있다. 
+![SimpleFlow](./images/SimpleFlow.png) 
+
 # FlowStep
 - step 내에 Flow를 할당하여 실행시키는 도메인 객체 
 - flowStep의 BatchStatus와 ExitStatus는 Flow의 최종 상태값에 따라 결정 
 - ```
+  @Bean 
   public Step flowStep() {
       return stepBuilderFactory.get("flowStep")
               .flow(flow()) 
               .build();
   }
+
+  @Bean
+  public Flow flow() {
+    FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flow");
+
+    flowBuilder.start(step1())
+            .next(step2())
+            .end();
+
+    return flowBuilder.build();
+  }
   ```
 - `flow(flow())`는 step 내부에서 실행 될 flow 설정.  
+
