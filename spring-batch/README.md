@@ -738,3 +738,57 @@ public class JobRunner implements ApplicationRunner {
   ```
 - `flow(flow())`는 step 내부에서 실행 될 flow 설정.  
 
+# @JobScope, @StepScope
+
+## Scope
+- 스프링 컨테이너에서 빈이 관리되는 범위 
+- singleton, prototype, request, session, application 
+
+## 스프링 배치 스코프 @JobScope, @StepScope
+- Job과 Step의 빈 생성과 실행에 관여하는 스코프 
+- 기본적으로 `프록시 모드`로 생성된다. 
+  + `@Scope(value="job", proxyMode=ScopedProxyMode.TARGET_CLASS)`
+- 해당 어노테이션이 있으면, `어플리케이션 구동 시점`이 아닌 `빈의 실행 시점`에 빈이 생성된다. 
+- 따라서, `어플리케이션 실행 시점이 아니므로 Lazy Binding을 할 수 있는데 실행 시점에 Jobparameter를 넘겨줄 수 있다.` @Value("#{jobParameters[파라미터명]}")
+- 또한 `병렬처리 시 각 스레드마다 할당되기 때문에 안전하게 실행할 수 있다.` 
+
+## @JobScope
+- ```
+  @Bean
+  public Job job() {
+      return jobBuilderFactory.get("job")
+              .start(step1(null))
+              .build();
+  }
+
+  @Bean
+  @JobScope
+  public Step step1(@Value("#{jobParameters['message']}") String message) {
+      System.out.println("message = " + message);
+      return (stepContribution, chunkContext) -> {
+            System.out.println("tasket1 has executed");
+            return RepeatStatus.FINISHED;
+  }
+  ```
+- `step` 구문에 `@JobScope`를 선언하고, `@Value`를 필수로 선언하여 사용한다. 
+- 기존에 호출하던 부분에서는 null을 전달한다. `start(step1(null))`
+- jobParameters인 message는 program arguments로 전달 //--job.name=job message=testScope
+
+## @StepScope
+- ```
+  @Bean
+  public Step step2() {
+      return stepBuilderFactory.get("step2")
+              .tasklet(tasklet2(null))
+              .build();
+  }
+
+  @Bean
+  @StepScope
+  public Tasklet tasklet2(@Value("#{jobParameters['name']}") String name) {
+      System.out.println("name = " + name);
+      return (stepContribution, chunkContext) -> {
+          return RepeatStatus.FINISHED;
+      };
+  }
+  ```
