@@ -792,3 +792,72 @@ public class JobRunner implements ApplicationRunner {
       };
   }
   ```
+
+# Chunk
+- `chunk`는 `여러 개의 아이템을 묶은 하나의 덩어리`를 의미한다. 
+- item을 하나씩 읽어와 chunk 단위의 덩어리로 만든 후 `chunk 단위로 트랜잭션`을 처리한다. 
+![chunk-input-ouput](./images/chunk/chunk-input-ouput.png)
+- ItemReader로 chunk size만큼 item을 하나씩 읽어와 Chunk<I>에 저장하고, Chunk<O>는 Chunk<I>를 적절하게 가공하여 ItemWriter에게 전달한다. 
+
+## ChunkOrientedTasklet 
+- chunk 지향 처리는 Tasklet의 구현체인 `ChunkOrientedTasklet`에서 담당한다. 
+- TaskletStep에 의해 반복적으로 실행되고 `ChunkOrientedTasklet이 실행될 때마다 매번 새로운 트랜잭션` 처리가 이루어진다.
+![ChunkOrientedTaskletProcess](./images/chunk/ChunkOrientedTaskletProcess.png)
+![ChunkOrientedTasklet](./images/chunk/ChunkOrientedTasklet.png)
+- `read()`로 `chunk size` 만큼 `item을 하나씩` 읽는다. 
+- read한 데이터를 `chunk size` 만큼 반복하여 process() 한다.
+- 가공된 items를 `한 번에 write` 한다. 
+- 과정이 완료되면 트랜잭션은 커밋된다. 
+- 과정 중 exception이 발생하면 해당 chunk는 롤백된다. 
+- ```
+  for(int i=0; i<totalSize; i+=chunkSize){ 
+    List inputs = new Arraylist();
+    for(int j = 0; j < chunkSize; j++){
+        Object item = itemReader.read();
+        inputs.add(item);
+    }
+    List outputs = new Arraylist();
+    for(int j = 0; j < chunkSize; j++){
+        Object output = itemProcessor.process(inputs.get(j));
+        outputs.add(output);
+    }
+    itemWriter.write(outputs);
+  }
+  ```
+
+### ChunkProvider 
+![ChunkProvider](./images/chunk/ChunkProvider.png)
+- ItemReader.read()로 chunk size 만큼 반복해서 item을 읽어서 Chunk<I>를 얻게된다. 
+- `ChunkProvider가 호출될 때마다 새로운 chunk가 생성된다.` 
+- chunk size 만큼 읽었거나 item == null 이면 해당 step이 종료된다. 
+
+### ChunkProcessor 
+![ChunkProcessor](./images/chunk/ChunkProcessor.png)
+- `ItemProcessor로 item을 변형, 가공, 필터링하고 ItemWriter를 사용해 Chunk를 저장, 출력한다. `
+- 앞서 얻은 Chunk<I>를 한 건씩 가공 처리하여 Chunk<O>에 저장한다. 
+- process 처리가 완료되면 Chunk<O>의 items는 ItemWriter에게 전달된다. 
+
+### 코드 구현
+```
+public Step chunkStep() {
+  return stepBuilderFactory.get(“chunkStep")
+    .<I, O>chunk(10)
+    .<I, O>chunk(CompletionPolicy)
+    .reader(itemReader())
+    .writer(itemWriter())
+    .processor(itemProcessor())    //optional
+    .stream(ItemStream())
+    .readerIsTransactionalQueue()
+    .listener(ChunkListener)
+    .build();
+}
+
+```
+- `<I, O>chunk(10)` chunk size 설정. size 만큼 read -> process -> writer -> commit. `chunk size 만큼이 트랜잭션 단위`
+- `reader(itemReader())` 소스로부터 item을 읽거나 가져오는 ItemReader 구현체 설정
+- `writer(itemWriter())` item을 목적지에 쓰거나 보내기 위한 ItemWriter
+- `processor(itemProcessor())` item을 변형. 필수값 아님 
+- `stream(itemStream())` 재시작 데이터를 관리하는 콜백에 대한 스트림 
+- `readerIsTransactionalQueue()` item이 MQ와 같은 트랜잭션 외부에서 읽혀지고 캐시할 것인지 여부. default false
+- `listener(ChunkListener)` 특정 시점에 콜백 리스너 설정. 
+
