@@ -26,20 +26,20 @@ public class JobLauncherController {
     private final JobLauncher jobLauncher;
     private final BasicBatchConfigurer basicBatchConfigurer;
 
-    @PostMapping("/batch")
-    public String launch(@RequestBody Member member) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addString("id", member.getId())
-                .addDate("date", new Date())
-                .toJobParameters();
-
-        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
-        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
-        jobLauncher.run(job, jobParameters);
-
-//        this.jobLauncher.run(job, jobParameters);
-
-        return "batch completed";
-    }
+//    @PostMapping("/batch")
+//    public String launch(@RequestBody Member member) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+//
+//        JobParameters jobParameters = new JobParametersBuilder()
+//                .addString("id", member.getId())
+//                .addDate("date", new Date())
+//                .toJobParameters();
+//
+//        SimpleJobLauncher jobLauncher = (SimpleJobLauncher) basicBatchConfigurer.getJobLauncher();
+//        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+//        jobLauncher.run(job, jobParameters);
+//
+////        this.jobLauncher.run(job, jobParameters);
+//
+//        return "batch completed";
+//    }
 }

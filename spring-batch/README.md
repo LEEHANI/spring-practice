@@ -837,6 +837,9 @@ public class JobRunner implements ApplicationRunner {
 - 앞서 얻은 Chunk<I>를 한 건씩 가공 처리하여 Chunk<O>에 저장한다. 
 - process 처리가 완료되면 Chunk<O>의 items는 ItemWriter에게 전달된다. 
 
+## 아키텍쳐 
+![arch](./images/chunk/arch.png)
+
 ### 코드 구현
 ```
 public Step chunkStep() {
@@ -861,3 +864,79 @@ public Step chunkStep() {
 - `readerIsTransactionalQueue()` item이 MQ와 같은 트랜잭션 외부에서 읽혀지고 캐시할 것인지 여부. default false
 - `listener(ChunkListener)` 특정 시점에 콜백 리스너 설정. 
 
+# ItemReader
+
+## FlatFileItemReader
+- ```
+  public FlatFileItemReader itemReader() {
+    return new FlatFileItemReaderBuilder<T>()
+      .name(String name)     // 이름 설정 
+      .resource(Resource)	   // 읽을 리소스 설정 
+      .delimited().delimiter("|") // 구분자로 파일 읽거나 
+      .fixedLength()              // 고정된 길이로 파일 읽기 
+      .addColumns(Range..)         // 고정 길이 지정 
+      .names(String[] fieldNames)  // LineTokenizer로 구분된 라인을 객체의 필드명과 매핑
+      .targetType(Class class)   
+      .addComment(String Comment)
+      .strict(boolean)             // 파싱에러가 날때 예외가 발생하지 않도록. default true
+      .encoding(String encoding) 
+      .linesToSkip(int linesToSkip)  // 상단에 무시할 라인 수 
+      .saveState(boolean)   
+      .setLineMapper(LineMapper)
+      .setFieldSetMapper(FieldSetMapper)
+      .setLineTokenizer(LineTokenizer)
+    .build();
+  }
+  ```
+- `resource`는 `ClassPathResource`나 `FileSystemResource` 등을 주로 사용한다. 
+- 
+### DelimitedLineTokenize
+- 한 개의 라인을 `구분자`로 나눠 `토큰화` 하는 방식
+- ```
+  @Bean
+  public ItemReader delimiteditemReader() {
+      return new FlatFileItemReaderBuilder<Customer>()
+              .name("delimited")
+              .resource(new ClassPathResource("/customer.csv"))
+              .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
+              .linesToSkip(1)
+              .delimited().delimiter(",")
+              .names("name", "age", "year")
+              .build();
+  } 
+  ```
+
+### FixedLengthTokenizer 
+- 한 개의 라인을 사용자가 설정한 `고정길이` 기준으로 나눠 `토큰화` 하는 방식 
+- ```
+  @Bean
+  public ItemReader fixedLengthitemReader() {
+      return new FlatFileItemReaderBuilder<Customer>()
+              .name("fiexd")
+              .resource(new ClassPathResource("/customer.csv"))
+              .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
+              .linesToSkip(1)
+              .targetType(Customer.class)
+              .fixedLength()
+              .addColumns(new Range(1, 4))
+              .addColumns(new Range(5, 8))
+              .addColumns(new Range(9, 11))
+              .names("name", "age", "year")
+              .build();
+  } 
+  ```
+- 예를들어 한 라인을 읽었는데 0000BQWAabc라면, 0000, BQWA, abc로 토큰화된다. 
+
+## JsonItemReader
+- json 파싱을 위해 두 가지 구현체를 사용할 수 있다. JacksonJsonObjectReader, GsonJsonObejctReader
+- ```
+  @Bean
+  public ItemReader jsonItemReader() {
+      return new FlatFileItemReaderBuilder<Customer>()
+              .name("json")
+              .resource(new ClassPathResource("/customer.json"))
+              .jsonObjectReader(new JacksonJsonObjectReader<>(Customer.class))
+              .build();
+  } 
+  ```
+- 내부적으로 ObjectMapper.readValue(JsonParser, Customer.class)로 파싱해서 읽는다. 

@@ -25,10 +25,13 @@ public class ChunkBatch {
     public Job job() {
         return jobBuilderFactory.get("job")
                 .start(step1())
-                .start(step2())
                 .build();
     }
 
+    /**
+     * chunk size 2 -> total 3 chunk
+     * @return
+     */
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
@@ -52,13 +55,4 @@ public class ChunkBatch {
                 .build();
     }
 
-    @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("step2 was executed");
-                    return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
 }
