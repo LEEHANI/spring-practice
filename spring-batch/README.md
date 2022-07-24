@@ -1,5 +1,6 @@
 # 스프링 배치
 - `일괄처리 애플리케이션` 
+- 실시간으로 처리가 어려운 `대용량 데이터`를 다루며, 배치를 다룰 때 DB `I/O 성능 문제`와 `메모리 자원`의 효율성을 생각해야한다. 
 - `인프런` `스프링 배치(정수원님)` - `Spring Boot 기반으로 개발하는 Spring Batch` 강의 듣고 정리 
 
 ## 핵심 패턴
@@ -889,7 +890,7 @@ public Step chunkStep() {
   }
   ```
 - `resource`는 `ClassPathResource`나 `FileSystemResource` 등을 주로 사용한다. 
-- 
+
 ### DelimitedLineTokenize
 - 한 개의 라인을 `구분자`로 나눠 `토큰화` 하는 방식
 - ```
@@ -940,3 +941,57 @@ public Step chunkStep() {
   } 
   ```
 - 내부적으로 ObjectMapper.readValue(JsonParser, Customer.class)로 파싱해서 읽는다. 
+
+
+# DB Cursor Based & Paging Based
+- `배치에서 실시간 처리가 어려운 대용량 데이터를 다룰 때, DB I/O의 성능 문제와 메모리 자원 문제를 고려해야 한다.`
+## Cursor Based
+- 데이터를 호출하면 현재 커서에서 다음 커서로 이동하여 데이터 반환이 이루어지는 `Streaming 방식의 I/O` 이다
+- `배치가 완료`될 때까지 `DB 커넥션이 연결`되어 있으므로 `socketTimeout 시간`을 충분한 값으로 설정해야 함 
+- 모든 결과를 메모리에 적재하기 때문에 `메모리 사용량이 많다.`
+
+
+## Paging Based
+- `페이징 단위로 데이터를 조회`하는 방식으로 `Page size` 만큼 `한 번에 메모리`로 가져온 다음 한 개씩 읽는다. 
+- 한 페이지를 읽을 때마다 `커넥션을 맺고 끊기` 떄문에 대량의 데이터를 처리하더라도 `socketTimeout 예외가 거의 일어나지 않음.`. 
+- 페이지 단위의 결과 만큼만 메모리에 할당하기 때문에 메모리 사용이 적다. 
+![cursor-paging](./images/itemReader/cursor-paging.png)
+
+## JdbcCursorItemReader
+- Cursor 기반의 JDBC 구현체로, ResultSet과 사용되며 Datasource에서 connection을 얻어와서 SQL을 실행
+- `Thread 안정성이 보장되지 않음`. 멀티 스레드 환경에서 동시성 이슈가 발생할 수 있으므로 별도의 동기화 처리 필요. 
+- ```
+  @Bean
+  public ItemReader<Customer> jdbcCursorItemReader() {
+      return new JdbcCursorItemReaderBuilder<T>()
+              .name("jdbcCursorItemReader")
+              .fetchSize(chunkSize) // chunk size 와 동일하게
+              .dataSource(dataSource)
+              .sql(String sql)
+              .beanRowMapper(Class<T>)
+              .queryArguments(Object args)
+              .maxItemCount(int count) //조회 할 최대 item 수
+              .currentItemCount(int count) //조회 Item의 시작 지점 
+              .maxRows(int maxRows) //ResultSet 오브젝트가 포함 할 수 있는 최대 행 수
+              .build();
+  }
+  ```
+- 보통 `fetchSize`는 `chunk size`와 동일하게 설정한다. 
+
+## JpaCursorItemReader
+- 스프링 배치 4.3부터 지원 
+- cursor 기반의 JPA 구현체로서 EntityManagerFactory 객체가 필요하며 쿼리는 JPQL을 사용한다. 
+- ```
+  @Bean
+  public ItemReader<Customer> jpaCursorItemReader() {
+    return new JpaCursorItemReaderBuilder<Customer>()
+          .name("jpaCursorItemReader")
+          .entityManagerFactory(entityManagerFactory)
+          .queryString(String JPQL)
+          .parameterValues(Map<String, Object> parameters)
+          .currentItemCount(int count) //조회 Item의 시작 지점 
+          .maxRows(int maxRows) //ResultSet 오브젝트가 포함 할 수 있는 최대 행 수
+          .build();
+  }
+  ```
+- `JdbcCursorItemReader`는 itr.next()할 때마다 `직접 디비에서 데이터`를 하나씩 가져와 object로 변환하지만, `JpaCursorItemReader`는 이미 ResultStream에서 조회할 `데이터를 전부 갖고있고` itr.next()를 할 때 ResultStream에 있는 데이터를 하나씩 꺼내서 사용한다. 

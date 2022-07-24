@@ -1,4 +1,4 @@
-package com.example.springbatch.job.flatItemReader;
+package com.example.springbatch.job.itemReader.flat;
 
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;

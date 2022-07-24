@@ -24,7 +24,6 @@ public class CustomChunkBatch {
     public Job job() {
         return jobBuilderFactory.get("chunk")
                 .start(step1())
-                .next(step2())
                 .build();
     }
 
@@ -56,13 +55,4 @@ public class CustomChunkBatch {
         return new CustomerItemWriter();
     }
 
-    @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("step2 was executed");
-                    return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
 }

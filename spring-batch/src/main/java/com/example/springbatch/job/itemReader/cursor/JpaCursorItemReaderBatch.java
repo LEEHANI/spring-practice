@@ -1,4 +1,4 @@
-package com.example.springbatch.job.flatItemReader;
+package com.example.springbatch.job.itemReader.cursor;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -8,37 +8,36 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
+import javax.persistence.EntityManagerFactory;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
-public class JsonItemReaderBatch {
+public class JpaCursorItemReaderBatch {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+    private int chunkSize = 5;
+    private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public Job job() {
-        return jobBuilderFactory.get("json-job")
+    public Job jpaCursorJob() {
+        return jobBuilderFactory.get("jpa-cursor")
                 .incrementer(new RunIdIncrementer())
-                .start(step1())
+                .start(jpaCursorStep())
                 .build();
     }
 
     @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("json")
-                .<Customer, Customer>chunk(3)
-                .reader(jsonItemReader())
+    public Step jpaCursorStep() {
+        return stepBuilderFactory.get("jpa-cursor")
+                .<Customer, Customer>chunk(chunkSize)
+                .reader(jpaCursorItemReader())
                 .writer(new ItemWriter() {
                     @Override
                     public void write(List list) throws Exception {
@@ -49,12 +48,16 @@ public class JsonItemReaderBatch {
     }
 
     @Bean
-    public ItemReader<? extends Customer> jsonItemReader() {
-        return new JsonItemReaderBuilder<Customer>()
-                .name("jsonReader")
-                .resource(new ClassPathResource("/customer.json"))
-                .jsonObjectReader(new JacksonJsonObjectReader<>(Customer.class))
+    public ItemReader<Customer> jpaCursorItemReader() {
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("firstname", "A%");
+
+        return new JpaCursorItemReaderBuilder<Customer>()
+                .name("jpaCursorItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("select c from Customer c where firstname like :firstname")
+                .parameterValues(parameters)
                 .build();
     }
-
 }

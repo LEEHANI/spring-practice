@@ -1,4 +1,4 @@
-package com.example.springbatch.job.flatItemReader;
+package com.example.springbatch.job.itemReader.flat;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
