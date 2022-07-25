@@ -994,4 +994,49 @@ public Step chunkStep() {
           .build();
   }
   ```
-- `JdbcCursorItemReader`는 itr.next()할 때마다 `직접 디비에서 데이터`를 하나씩 가져와 object로 변환하지만, `JpaCursorItemReader`는 이미 ResultStream에서 조회할 `데이터를 전부 갖고있고` itr.next()를 할 때 ResultStream에 있는 데이터를 하나씩 꺼내서 사용한다. 
+- `JdbcCursorItemReader`는 itr.next()할 때마다 `직접 디비에서 데이터`를 하나씩 가져와 object로 변환하지만, `JpaCursorItemReader`는 이미 ResultStream에서 조회할 `데이터를 전부 갖고있고` itr.next()를 할 때 ResultStream에 있는 데이터를 하나씩 꺼내서 사용한다.
+
+## JdbcPagingItemReader
+- 스프링 배치에서 `page size`에 맞게 offset과 limit를 자동으로 생성하여 `페이지 단위로 쿼리를 생성`하여 데이터를 조회해준다. 
+- 페이징 시 `order by` 구문이 필수로 필요하다. 
+- 멀티 스레드 환경에서 `Thread-safe` 하다.
+- 페이징 전략이 다르므로 `데이터 베이스 유형에 맞는 PagingQueryProvider를 사용`해야 한다. 
+- ```
+  @Bean
+  public ItemReader<Customer> jdbcCursorItemReader() {
+      return new JdbcPagingItemReaderBuilder<T>()
+              .name("jdbcPagingItemReader")
+              .pageSize(chunkSize) // 
+              .dataSource(dataSource)
+              .queryProvider(PagingQuqeryProvider)   //
+              .rowMapper(Class<T>) // 쿼리로 반환 되는 데이터와 객체를 매핑
+              .parameterValues(Map<String, Object> parameters)
+              .maxItemCount(int count) //조회 할 최대 item 수
+              .currentItemCount(int count) //조회 Item의 시작 지점 
+              .maxRows(int maxRows) //ResultSet 오브젝트가 포함 할 수 있는 최대 행 수
+              .selectClause(select) //PagingQuqeryProvider
+              .fromClause(from)     //PagingQuqeryProvider
+              .whereClause(where)   //PagingQuqeryProvider
+              .groupClause(group)   //PagingQuqeryProvider
+              .sortKeys(Map<String, Object> sortKeys) //PagingQuqeryProvider
+              .build();
+  }
+  ```
+
+## JpaPagingItemReader
+- ```
+  @Bean
+  public JpaPagingItemReader jpaPagingItemReader() throws Exception {
+      return new JpaPagingItemReaderBuilder<T>()
+              .name("jpaPagingItemReader")
+              .pageSize(size)
+              .entityManagerFactory(entityManagerFactory)
+              .queryString(JPQL)
+              .parameterValues(Map<String, Object> parameters)
+              .build();
+  }
+  ```
+
+## ItemReaderAdapter 
+- 이미 기존에 사용하고 있는 DAO나 서비스를 배치에서 사용하고 싶을 때 delegate 역할을 한다. 
+![adapter](./images/itemReader/adapter.png)

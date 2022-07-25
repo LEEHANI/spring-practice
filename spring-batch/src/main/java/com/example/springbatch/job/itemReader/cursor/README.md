@@ -1,2 +1,3 @@
 
 # DB JdbcCursorItemReader
+# DB JpaCursorItemReader

@@ -1,4 +1,4 @@
-package com.example.springbatch.job.itemReader.cursor;
+package com.example.springbatch.job.itemReader.page;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -8,36 +8,34 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManagerFactory;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-public class JpaCursorItemReaderBatch {
+public class JpaPagingItemReaderBatch {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private int chunkSize = 5;
+    private int chunkSize = 10;
     private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public Job jpaCursorJob() {
-        return jobBuilderFactory.get("jpa-cursor")
+    public Job jpaPagingJob() throws Exception {
+        return jobBuilderFactory.get("jpa-paging")
                 .incrementer(new RunIdIncrementer())
-                .start(jpaCursorStep())
+                .start(jpaPagingStep())
                 .build();
     }
 
     @Bean
-    public Step jpaCursorStep() {
-        return stepBuilderFactory.get("jpa-cursor")
-                .<Customer, Customer>chunk(chunkSize)
-                .reader(jpaCursorItemReader())
+    public Step jpaPagingStep() throws Exception {
+        return stepBuilderFactory.get("jpa-paging")
+                .<Member, Member>chunk(chunkSize)
+                .reader(jpaPagingItemReader())
                 .writer(new ItemWriter() {
                     @Override
                     public void write(List list) throws Exception {
@@ -48,16 +46,12 @@ public class JpaCursorItemReaderBatch {
     }
 
     @Bean
-    public ItemReader<Customer> jpaCursorItemReader() {
-
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("firstname", "A%");
-
-        return new JpaCursorItemReaderBuilder<Customer>()
-                .name("jpaCursorItemReader")
+    public ItemReader<Member> jpaPagingItemReader() throws Exception {
+        return new JpaPagingItemReaderBuilder<Member>()
+                .name("jpaPagingItemReader")
+                .pageSize(chunkSize)
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select c from Member c where firstname like :firstname")
-                .parameterValues(parameters)
+                .queryString("select m from Member m join m.address")
                 .build();
     }
 }
