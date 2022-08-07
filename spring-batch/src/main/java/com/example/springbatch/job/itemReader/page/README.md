@@ -1,3 +1,0 @@
-
-# DB JdbcPagingItemReader
-# DB JpaPagingItemReader
