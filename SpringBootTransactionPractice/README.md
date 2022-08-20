@@ -3,10 +3,11 @@
 
 
 ## AOP와 Transactional 
-- 스프링에서는 프록시 패턴을 AOP 기술을 사용한다 
+- 스프링에서는 `프록시 패턴을 AOP 기술`을 사용한다 
 - JDK Proxy
   + 인터페이스가 구현된 클래스에서만 사용. Thread-safe 
 - `CGLib Proxy`
+  + 런타임 시점에 프록시 객체를 만듦
   + 부모 인터페이스가 없어도 적용 가능. Thread-safe. 
   + Spring boot에서 transaction 대상의 기본 프록시 
 - proxy-target-class: false (default)
@@ -46,10 +47,32 @@ public @interface MemberTransaction {
 ```
 
 ## Transaction Propagation
-- default `Propagation.REQUIRED` 
+### default `Propagation.REQUIRED` 
+- 활성 트랜잭션이 없으면 새 트랜잭션을 생성. 
+
+### Propagation.SUPPORTS 
+- 활성 트랜잭션이 있으면 기존꺼 사용. 없으면 트랜잭션 없이 실행 
+
+### Propagation.MANDATORY 
+- 활성 트랜잭션이 없으면 예외 발생. 
+
+### Propagation.NEVER
+- 활성 트랜잭션 있으면 예외 발생. 
+
+### Propagation.REQUIRES_NEW
+- 항상 새 트랜잭션 생성 
+
+### Propagation.NESTED
+- 활성 트랜잭션이 있으면 저장점을 표시. 
+- 비즈니스 로직에서 예외 발생 시 저장 지점으로 롤백
+- 활성 트랜잭션이 없으면 REQUIRED 처럼 작동 
+
+## isolation 
+- default. DBMS의 기본 격리 수준 적용. 
+
 
 ## 동일클래스 @Transactional 테스트
-### 메서드에서 트랜잭션 걸린 메서드 호출 시, 메서드2의 트랜잭션은 동작하지 않는다. 
+### 메서드(transaction X)에서 트랜잭션 걸린 메서드 호출 시, 메서드2의 트랜잭션은 동작하지 않는다. 
 ```
 public List<Member> noTransactionMethodCallTransactionMethod() {
     log.info("----11--> {}, {}", TransactionSynchronizationManager.getCurrentTransactionName(), TransactionSynchronizationManager.isCurrentTransactionReadOnly());
@@ -65,7 +88,7 @@ public void transaction(List<Member> members) {
 }
 ```
 
-### 트랜잭션 걸린 메서드에서 메서드 호출 시, 메서드1의 트랜잭션이 동작한다. 
+### 트랜잭션 걸린 메서드에서 메서드(transaction X) 호출 시, 메서드1의 트랜잭션이 동작한다. 
 ```
 @Transactional
 public List<Member> transactionMethodCallNoTransactionMethod() {
@@ -85,6 +108,6 @@ public void noTransaction(List<Member> members) {
 
 
 ## Transaction Exception 상황에서의 동작
-- 참여 중인 트랜잭션이 실패하면 기본 정책이 전역롤백이다. rollback-only
+- 참여 중인 트랜잭션이 실패하면 기본 정책이 `전역롤백`이다. rollback-only
   + A → B 메소드 호출되고 A 메소드에서 트랜잭션 시작되고 B 도 @Transactional(propagation=REQUIRED)일 경우, B에서 예외가 발생하면 A에서 비록 예외를 잡아서 먹어버리더라도 트랜잭션은 롤백 된다
-- 트랜잭션에서 Propagation.REQUIRES_NEW로 새로운 트랜잭션을 만들면, 커넥션이 또 생성된다.   
+- 트랜잭션에서 `Propagation.REQUIRES_NEW`로 새로운 트랜잭션을 만들면, 커넥션이 또 생성된다.   
